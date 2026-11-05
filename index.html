@@ -1,0 +1,1384 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>Sistem Kendali Industri</title>
+<meta name="description" content="Media ajar interaktif Sistem Kendali Industri kelas XII TEI: relay logic, PLC Omron, wiring dan commissioning, elektropneumatik dan hidrolik, HMI, proses produksi, dan jaringan PLC, lengkap dengan simulator ladder.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="assets/style.css?v=5">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21V5M8 7h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-chip" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></g></symbol>
+    <symbol id="i-meter" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="5.5" width="8" height="5" rx="1"/><circle cx="12" cy="16" r="2.5"/></g></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></g></symbol>
+    <symbol id="i-screen" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4M7 8h4M7 11h6"/></g></symbol>
+    <symbol id="i-net" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="5" rx="1"/><rect x="2.5" y="16.5" width="6" height="5" rx="1"/><rect x="15.5" y="16.5" width="6" height="5" rx="1"/><path d="M12 7.5v4M5.5 16.5V12h13v4.5"/></g></symbol>
+    <symbol id="i-steps" viewBox="0 0 24 24"><path d="M3 18h5v-5h5V8h5V3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></g></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 13l2 2 4-4"/></g></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></g></symbol>
+    <symbol id="i-log" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></g></symbol>
+    <symbol id="i-guru" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="3.5"/><path d="M5 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/></g></symbol>
+    <symbol id="i-ref" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></g></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></g></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></g></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18.5h2"/></g></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></g></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 15V4M7 9l5-5 5 5M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-dice" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/></g><g fill="currentColor"><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="15" r="1.5"/><circle cx="15" cy="9" r="1.5"/><circle cx="9" cy="15" r="1.5"/></g></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar" aria-label="Navigasi">
+    <a class="brand" href="#beranda">
+      <svg class="brand-chip" viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="3" width="34" height="34" rx="8" fill="var(--mask)"/><g stroke="var(--mask-ink)" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M9 14h6M15 9v10M19 9v10M19 14h12"/><path d="M9 27h7M27 27h4"/><path d="M19 22a4 5 0 0 0 0 10M24 22a4 5 0 0 1 0 10"/></g></svg>
+      <span><b>Sistem Kendali Industri</b><small>SMK · XII TEI · PLC Omron</small></span>
+    </a>
+    <div class="progress-box">
+      <div class="row"><span>Pertemuan selesai</span><b class="tnum" id="prog-text">0/32</b></div>
+      <div class="meter"><i id="prog-bar"></i></div>
+    </div>
+    <nav class="nav-group" aria-label="Mulai">
+      <div class="nav-label">Mulai</div>
+      <a class="nav-link" href="#beranda"><span class="nav-ico"><svg><use href="#i-home"/></svg></span>Beranda</a>
+      <a class="nav-link" href="#info"><span class="nav-ico"><svg><use href="#i-info"/></svg></span>Identitas &amp; tujuan</a>
+      <a class="nav-link" href="#k3"><span class="nav-ico"><svg><use href="#i-shield"/></svg></span>K3 &amp; aturan lab</a>
+      <a class="nav-link" href="#persiapan"><span class="nav-ico"><svg><use href="#i-phone"/></svg></span>Alat &amp; aplikasi</a>
+      <a class="nav-link" href="#peta"><span class="nav-ico"><svg><use href="#i-map"/></svg></span>Peta 32 pertemuan</a>
+    </nav>
+    <nav class="nav-group" aria-label="Semester ganjil">
+      <div class="nav-label">Semester ganjil</div>
+      <a class="nav-link" href="#m1"><span class="rbar b1"></span>Relay logic<span class="nav-sub">P1-5</span></a>
+      <a class="nav-link" href="#m2"><span class="rbar b2"></span>Konsep PLC<span class="nav-sub">P6-7</span></a>
+      <a class="nav-link" href="#m3"><span class="rbar b3"></span>Wiring &amp; commissioning<span class="nav-sub">P8-10</span></a>
+      <a class="nav-link" href="#m4"><span class="rbar b4"></span>Pemrograman PLC<span class="nav-sub">P11-16</span></a>
+    </nav>
+    <nav class="nav-group" aria-label="Semester genap">
+      <div class="nav-label">Semester genap</div>
+      <a class="nav-link" href="#m5"><span class="rbar b5"></span>Pneumatik &amp; hidrolik<span class="nav-sub">P17-22</span></a>
+      <a class="nav-link" href="#m6"><span class="rbar b6"></span>HMI<span class="nav-sub">P23-25</span></a>
+      <a class="nav-link" href="#m7"><span class="rbar b7"></span>Proses produksi<span class="nav-sub">P26-29</span></a>
+      <a class="nav-link" href="#m8"><span class="rbar b8"></span>PLC dalam jaringan<span class="nav-sub">P30-32</span></a>
+    </nav>
+    <nav class="nav-group" aria-label="Alat praktik">
+      <div class="nav-label">Alat praktik</div>
+      <a class="nav-link" href="#lab"><span class="nav-ico"><svg><use href="#i-chip"/></svg></span>Lab PLC (ladder)</a>
+      <a class="nav-link" href="#gangguan"><span class="nav-ico"><svg><use href="#i-meter"/></svg></span>Lab gangguan</a>
+      <a class="nav-link" href="#commissioning"><span class="nav-ico"><svg><use href="#i-plug"/></svg></span>Lab commissioning</a>
+      <a class="nav-link" href="#langkah"><span class="nav-ico"><svg><use href="#i-steps"/></svg></span>Diagram langkah</a>
+      <a class="nav-link" href="#hmi"><span class="nav-ico"><svg><use href="#i-screen"/></svg></span>Lab HMI</a>
+      <a class="nav-link" href="#jaringan"><span class="nav-ico"><svg><use href="#i-net"/></svg></span>Lab jaringan</a>
+      <a class="nav-link" href="#hitung"><span class="nav-ico"><svg><use href="#i-calc"/></svg></span>Alat hitung</a>
+    </nav>
+    <nav class="nav-group" aria-label="Evaluasi">
+      <div class="nav-label">Evaluasi &amp; bantuan</div>
+      <a class="nav-link" href="#asesmen"><span class="nav-ico"><svg><use href="#i-check"/></svg></span>Asesmen &amp; kuis</a>
+      <a class="nav-link" href="#lkpd"><span class="nav-ico"><svg><use href="#i-doc"/></svg></span>LKPD 1-8</a>
+      <a class="nav-link" href="#log"><span class="nav-ico"><svg><use href="#i-log"/></svg></span>Log kerja</a>
+      <a class="nav-link" href="#kumpul"><span class="nav-ico"><svg><use href="#i-up"/></svg></span>Kumpulkan hasil</a>
+      <a class="nav-link" href="#guru"><span class="nav-ico"><svg><use href="#i-guru"/></svg></span>Perangkat guru</a>
+      <a class="nav-link" href="#referensi"><span class="nav-ico"><svg><use href="#i-ref"/></svg></span>Glosarium &amp; referensi</a>
+    </nav>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <header class="topbar">
+    <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Buka menu" aria-controls="sidebar" aria-expanded="false"><svg><use href="#i-menu"/></svg></button>
+    <div class="topbar-title" id="topbar-title">Beranda</div>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Ganti tema terang/gelap"><svg><use href="#i-moon"/></svg></button>
+  </header>
+  <div class="netbar" id="netbar" role="status" hidden>Sedang offline. Materi, Lab PLC, kuis, dan LKPD tetap bisa dipakai. Tautan bertanda ↗ ke situs lain butuh internet.</div>
+
+  <main class="main" id="main">
+
+<!-- ============================== BERANDA ============================== -->
+<section class="view" id="v-beranda" data-title="Beranda">
+  <div class="wrap-wide">
+    <div class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">Media ajar · SMK Teknik Elektronika Industri · Kelas XII · Fase F</div>
+        <h1>Dari kontak relay sampai <em>PLC berjaringan</em>, dibuktikan dengan uji</h1>
+        <p class="lead">Satu tahun, delapan modul: relay logic, konsep PLC, wiring dan commissioning, pemrograman ladder Omron, elektropneumatik dan hidrolik, HMI, proses produksi, dan jaringan PLC. Setiap konsep bisa langsung dicoba di simulator: tekan tombol, lihat aliran daya di ladder, lalu uji programmu dengan skenario normal dan gagal.</p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="#m1">Mulai dari Modul 1</a>
+          <a class="btn btn-ghost" href="#lab"><svg><use href="#i-chip"/></svg>Lab PLC</a>
+          <a class="btn btn-ghost" href="#k3"><svg><use href="#i-shield"/></svg>Aturan K3</a>
+        </div>
+      </div>
+      <div class="hero-demo"><div class="small muted">Coba sekarang: tekan dan tahan START, lalu STOP. Jalur hijau = aliran daya.</div><div data-w="mini-plc-dol"></div></div>
+    </div>
+
+    <div class="facts">
+      <div class="fact"><b class="tnum">32</b><span>pertemuan × 3 JP (96 JP), satu pertemuan per minggu</span></div>
+      <div class="fact"><b class="tnum">8</b><span>modul (TP 5.1-5.7), semester ganjil 1-4, genap 5-8</span></div>
+      <div class="fact"><b class="tnum">6</b><span>lab: PLC ladder, gangguan, commissioning, HMI, jaringan, diagram langkah</span></div>
+      <div class="fact"><b class="tnum">40</b><span>soal pilihan ganda, 16 uraian, 8 studi kasus, 8 program untuk diperbaiki</span></div>
+    </div>
+
+    <section class="block">
+      <h2>Yang bisa dilakukan di web ini</h2>
+      <div class="grid">
+        <div class="card"><h3>Simulator ladder Omron</h3><p class="muted small">Tulis mnemonik (LD, AND, OR, OUT, SET, KEEP, DIFU, TIM, CNT, …), lakukan program check, lalu jalankan pada panel motor, konveyor, silinder pneumatik, press hidrolik, atau stasiun sortir.</p></div>
+        <div class="card"><h3>Misi teruji otomatis</h3><p class="muted small">Pemeriksa menjalankan programmu dengan skenario: START dan STOP bersamaan, TOR trip, kontaktor lengket, sensor tidak terbaca, E-stop di tengah siklus.</p></div>
+        <div class="card"><h3>Multimeter dan commissioning</h3><p class="muted small">Cari gangguan rangkaian DOL dengan multimeter virtual, dan lakukan I/O check pada trainer yang menyimpan kesalahan wiring.</p></div>
+        <div class="card"><h3>LKPD dan log digital</h3><p class="muted small">Delapan LKPD, I/O list, test log, troubleshooting log, communication log. Semua tersimpan di HP dan bisa diunduh sebagai laporan.</p></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Modul</h2>
+      <div class="chap-cards">
+        <a class="chap-card b1" href="#m1"><span class="k"><span class="rbar b1"></span>Modul 1 · P1-5 · TP 5.1</span><h3>Relay logic untuk kendali motor</h3><p>Komponen dan simbol, diagram kontrol-daya, pengunci, interlock, timer, troubleshooting.</p></a>
+        <a class="chap-card b2" href="#m2"><span class="k"><span class="rbar b2"></span>Modul 2 · P6-7 · TP 5.2</span><h3>Konsep dan arsitektur PLC</h3><p>Struktur PLC, siklus scan, area memori Omron, IEC 61131-3, konversi relay ke ladder.</p></a>
+        <a class="chap-card b3" href="#m3"><span class="k"><span class="rbar b3"></span>Modul 3 · P8-10 · TP 5.3</span><h3>Wiring dan commissioning</h3><p>I/O list, sensor NPN/PNP, kerapian wiring, power-off check, I/O check, dokumentasi.</p></a>
+        <a class="chap-card b4" href="#m4"><span class="k"><span class="rbar b4"></span>Modul 4 · P11-16 · TP 5.4A</span><h3>Pemrograman PLC elektromekanik</h3><p>Instruksi bit, SET/RSET, KEEP, deteksi tepi, interlock, timer, counter, troubleshooting.</p></a>
+        <a class="chap-card b5" href="#m5"><span class="k"><span class="rbar b5"></span>Modul 5 · P17-22 · TP 5.4B</span><h3>Elektropneumatik dan hidrolik</h3><p>Katup dan silinder, sensor posisi, diagram langkah, F = p × A, kendali dua tangan, pick-and-place.</p></a>
+        <a class="chap-card b6" href="#m6"><span class="k"><span class="rbar b6"></span>Modul 6 · P23-25 · TP 5.5</span><h3>Human-machine interface</h3><p>Desain layar, koneksi HMI-PLC, tag, setpoint berbatas, alarm, level akses.</p></a>
+        <a class="chap-card b7" href="#m7"><span class="k"><span class="rbar b7"></span>Modul 7 · P26-29 · TP 5.6</span><h3>PLC pada proses produksi</h3><p>GRAFCET, mode auto/manual, E-stop, reset, homing, counter produksi, uji penerimaan.</p></a>
+        <a class="chap-card b8" href="#m8"><span class="k"><span class="rbar b8"></span>Modul 8 · P30-32 · TP 5.7</span><h3>PLC dalam jaringan</h3><p>Piramida otomasi, RS-485 dan Ethernet, Serial PLC Link, heartbeat, diagnosis gangguan.</p></a>
+      </div>
+      <p class="small muted">Simulator di web ini dibuat untuk belajar. Perilakunya mengikuti PLC Omron seri CP sejauh yang dibutuhkan materi, tetapi tidak menggantikan CX-Programmer, trainer, dan validasi oleh guru atau personel kompeten.</p>
+    </section>
+  </div>
+</section>
+
+<!-- ============================== IDENTITAS ============================== -->
+<section class="view" id="v-info" data-title="Identitas & tujuan" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Identitas media ajar</div>
+      <h1>Identitas dan tujuan</h1>
+      <p class="lead">Disusun dari Paket Perangkat Ajar Sistem Kendali Industri kelas XII Teknik Elektronika Industri tahun pelajaran 2026/2027 (CP 046/H/KR/2025, Pembelajaran Mendalam 8-3-3-4).</p>
+    </div>
+    <div class="tbl-wrap"><table class="tbl kv" id="id-tbl"></table></div>
+    <section class="block">
+      <h2>Capaian pembelajaran</h2>
+      <p id="cp-text"></p>
+      <p class="small muted">Sumber: Keputusan Kepala BSKAP Nomor 046/H/KR/2025, elemen Sistem Kendali Industri Fase F. Urutan tujuan mengikuti ATP Teknik Elektronika Industri yang dilampirkan guru (TP 5.1-5.7). Kompetensi 5.4 dipecah menjadi 5.4A (elektromekanik) dan 5.4B (elektropneumatik dan hidrolik).</p>
+    </section>
+    <section class="block">
+      <h2>Tujuan pembelajaran dan bukti</h2>
+      <div class="tbl-wrap"><table class="tbl small" id="tp-tbl"></table></div>
+      <h3>Alur belajar</h3>
+      <ol class="list" id="alur-list"></ol>
+    </section>
+    <section class="block">
+      <h2>Projek tahunan: Mini Stasiun Produksi Otomatis</h2>
+      <p id="projek-intro"></p>
+      <div class="tbl-wrap"><table class="tbl small" id="projek-tbl"></table></div>
+    </section>
+    <section class="block">
+      <h2>Karakteristik mata pelajaran dan murid</h2>
+      <div class="tbl-wrap"><table class="tbl kv small" id="karakter-tbl"></table></div>
+    </section>
+    <section class="block">
+      <h2>Kerangka Pembelajaran Mendalam 8-3-3-4</h2>
+      <div class="tbl-wrap"><table class="tbl small" id="kerangka-tbl"></table></div>
+    </section>
+  </div>
+</section>
+
+<!-- ============================== K3 ============================== -->
+<section class="view" id="v-k3" data-title="K3 & aturan lab" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Keselamatan</div>
+      <h1>K3 listrik, fluida, jaringan, dan etika</h1>
+      <p class="lead">Sistem kendali menggerakkan motor, silinder, dan konveyor. Kesalahan kecil bisa melukai orang. Aturan ini berlaku di setiap pertemuan; centang setelah kamu membaca dan memahaminya.</p>
+    </div>
+    <ul class="checklist k3-list" id="k3-list"></ul>
+    <div class="callout warn"><b class="t">Prinsip yang diulang di semua modul</b>
+      <p>Wiring hanya diubah saat <b>power-off dengan LOTO</b>. Power-on hanya atas <b>izin guru</b>. <b>E-stop selalu hard-wired</b>: kontak NC-nya memutus daya aktuator, bukan sekadar input program atau tombol layar HMI. Pengaman (TOR, interlock, E-stop) <b>tidak pernah di-bypass</b>. Forcing hanya atas izin guru dan <b>dibatalkan setelah uji</b>.</p>
+    </div>
+    <section class="block">
+      <h2>Urutan aman setiap pertemuan</h2>
+      <div class="grid">
+        <div class="card"><h3>Sebelum</h3><p class="small">APD, area kerja bebas, rambut dan pakaian rapi, kenali letak E-stop, periksa trainer dalam kondisi power-off.</p></div>
+        <div class="card"><h3>Selama</h3><p class="small">Uji pertama tanpa beban, kecepatan dan tekanan rendah. Satu perubahan setiap kali, lalu catat hasilnya.</p></div>
+        <div class="card"><h3>Sesudah</h3><p class="small">Batalkan forcing, backup program berversi, buang tekanan udara/hidrolik, matikan dan kunci daya, rapikan bengkel.</p></div>
+      </div>
+      <p class="small muted">Rangkaian kendali praktik memakai 24 VDC. Rangkaian daya motor 220/380 VAC hanya pada panel trainer tertutup berpengaman (MCB, RCBO/ELCB, TOR) dan di bawah pengawasan langsung guru atau teknisi. Produk praktik tidak dipakai untuk mengendalikan mesin industri nyata tanpa validasi personel kompeten.</p>
+    </section>
+  </div>
+</section>
+
+<!-- ============================== PERSIAPAN ============================== -->
+<section class="view" id="v-persiapan" data-title="Alat & aplikasi" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Persiapan</div>
+      <h1>Alat dan aplikasi</h1>
+      <p class="lead">Materi, simulator, kuis, dan LKPD di web ini cukup dibuka di browser HP. Untuk praktik di perangkat sungguhan, siapkan software dan trainer berikut.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl small">
+        <thead><tr><th>Perangkat / aplikasi</th><th>Kegunaan</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <tr><td>Web ini</td><td>Materi, Lab PLC, lab gangguan, commissioning, HMI, jaringan, kuis, LKPD, log</td><td>Semua perangkat (browser)</td></tr>
+          <tr><td>CX-Programmer (paket CX-One)</td><td>Memprogram PLC Omron, program check, simulasi, monitoring, force, PLC Settings</td><td>Windows, berlisensi; gunakan lisensi sekolah</td></tr>
+          <tr><td>NB-Designer</td><td>Membuat project HMI Omron seri NB, simulasi offline/online</td><td>Windows, dari situs Omron</td></tr>
+          <tr><td>Simulator rangkaian kendali (mis. CADe_SIMU)</td><td>Menggambar dan menguji rangkaian relay logic</td><td>Windows; atau perangkat sejenis yang tersedia</td></tr>
+          <tr><td>Simulator fluida (mis. FluidSIM)</td><td>Rangkaian pneumatik/hidrolik bila trainer terbatas</td><td>Sesuai lisensi sekolah</td></tr>
+          <tr><td>Trainer</td><td>PLC Omron seri CP (CP1E/CP1L/CP2E), HMI NB, panel kendali motor berproteksi, trainer elektropneumatik/elektrohidrolik</td><td>Alamat contoh di web ini: input 0.00 dst., output 100.00 dst.</td></tr>
+          <tr><td>Multimeter, obeng berisolasi, kabel, ferrule, marker</td><td>Wiring, power-off check, troubleshooting</td><td>Periksa kelayakan alat ukur sebelum dipakai</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <section class="block">
+      <h2>Alamat I/O standar trainer</h2>
+      <p class="small">Input <b class="sym">0.00</b> START, <b class="sym">0.01</b> STOP (NC), <b class="sym">0.02</b> TOR (NC), <b class="sym">0.03</b> FWD, <b class="sym">0.04</b> REV, <b class="sym">0.05</b> sensor produk (PNP), <b class="sym">0.06</b> RESET. Output <b class="sym">100.00</b> K1, <b class="sym">100.01</b> K2, <b class="sym">100.02</b> K3, <b class="sym">100.03</b> H1 RUN, <b class="sym">100.04</b> H2 TRIP, <b class="sym">100.05</b> H3 batch selesai. Stasiun pneumatik, hidrolik, sortir, HMI, dan jaringan memakai tabel I/O di modulnya masing-masing. Sesuaikan dengan tipe CPU trainer.</p>
+    </section>
+    <section class="block" id="s-offline">
+      <h2>Memakai web ini tanpa internet</h2>
+      <p>Status di browser ini: <span class="tag" id="offline-status">memeriksa…</span></p>
+      <ul class="list">
+        <li>Buka web ini sekali saat ada internet. Salinannya disimpan otomatis oleh browser.</li>
+        <li>Setelah itu web bisa dibuka ulang tanpa internet di browser yang sama (bukan mode penyamaran).</li>
+        <li>Kemajuan, jawaban kuis, LKPD, log, dan program Lab PLC tersimpan di browser masing-masing, tidak dikirim ke mana pun. Kumpulkan lewat halaman <a href="#kumpul">Kumpulkan hasil</a>.</li>
+      </ul>
+    </section>
+  </div>
+</section>
+
+<!-- ============================== PETA ============================== -->
+<section class="view" id="v-peta" data-title="Peta 32 pertemuan" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Rencana</div>
+      <h1>Peta 32 pertemuan</h1>
+      <p class="lead">Semester ganjil pertemuan 1-16 (Modul 1-4), semester genap pertemuan 17-32 (Modul 5-8). Setiap pertemuan memakai pola Pendahuluan, Memahami, Mengaplikasi, Merefleksi, Penutup. Centang pertemuan yang sudah selesai; kemajuannya tampil di menu.</p>
+    </div>
+    <div class="panel jp-panel">
+      <h3>Alokasi waktu</h3>
+      <div class="jp-row">
+        <label class="field">JP per pertemuan<input type="number" id="jp-per" min="1" max="12" value="3" inputmode="numeric"></label>
+        <label class="field">Menit per JP<select id="jp-min"><option value="45">45 menit</option><option value="40">40 menit</option><option value="35">35 menit</option><option value="30">30 menit</option></select></label>
+        <div class="stack jp-sum"><b id="jp-total"></b><span class="small muted" id="jp-note"></span></div>
+      </div>
+      <p class="small muted">Bawaan dokumen: 3 JP × 45 menit = 135 menit. Ubah bila struktur kurikulum sekolah berbeda; setiap pertemuan menampilkan pembagian waktu dan langkahnya di "Rincian pertemuan".</p>
+    </div>
+    <div class="tbl-wrap"><table class="tbl small" id="pola-tbl"></table></div>
+    <div class="meet-list" id="meet-list"></div>
+    <p class="small muted">Tanggal mengikuti kalender pendidikan, jadwal PKL, dan pembagian mapel konsentrasi. Jika jadwal blok praktik dipadatkan, urutan subbab tetap dipertahankan.</p>
+  </div>
+</section>
+
+<!-- ============================== MODUL 1 ============================== -->
+<section class="view" id="v-m1" data-title="Modul 1 · Relay logic" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow"><span class="rbar b1"></span>Modul 1 · Pertemuan 1-5 · Semester ganjil</div>
+      <h1>Relay logic untuk kendali motor</h1>
+      <p class="lead">Relay logic adalah "program" yang ditulis dengan kabel: susunan kontak seri dan paralel menentukan perilaku mesin. Setiap kontak harus bisa dijelaskan fungsinya dan dibuktikan keamanannya.</p>
+    </div>
+    <div class="b1" data-modhead="1"></div>
+
+    <section class="block" id="p1">
+      <h2><span class="num">P1</span>Komponen kendali elektromagnetik, simbol, dan K3 panel</h2>
+      <p>Motor besar tidak dinyalakan dengan sakelar biasa. Arusnya besar, operator perlu mengendalikan dari jauh dengan tegangan rendah, dan motor butuh pengaman beban lebih serta penguncian. Tugas itu dikerjakan oleh <b>komponen kendali elektromagnetik</b>: tombol kecil mengendalikan kumparan kontaktor, lalu kontak utama kontaktor yang menyambung arus motor.</p>
+      <div class="tbl-wrap">
+        <table class="tbl small">
+          <thead><tr><th>Komponen (kode)</th><th>Penandaan terminal</th><th>Fungsi</th></tr></thead>
+          <tbody>
+            <tr><td>MCB (Q1)</td><td>1-2, 3-4, 5-6</td><td>Proteksi hubung singkat dan beban lebih saluran daya; sekaligus pemutus.</td></tr>
+            <tr><td>Sekering kontrol (F2)</td><td>-</td><td>Melindungi rangkaian kontrol.</td></tr>
+            <tr><td>Kontaktor (K1)</td><td>Kumparan A1-A2; kontak utama 1-2, 3-4, 5-6; bantu NO 13-14, 43-44; bantu NC 21-22</td><td>Sakelar elektromagnetik: kumparan kecil menarik kontak utama untuk arus motor.</td></tr>
+            <tr><td>Relay bantu (K)</td><td>A1-A2, kontak bernomor</td><td>Memperbanyak kontak sinyal; tidak untuk arus motor.</td></tr>
+            <tr><td>Thermal overload relay / TOR (F3)</td><td>95-96 NC, 97-98 NO</td><td>Memutus kumparan kontaktor saat motor kelebihan beban (bimetal memanas).</td></tr>
+            <tr><td>Tombol tekan (S)</td><td>NO 13-14 (umumnya hijau, START); NC 11-12 (merah, STOP)</td><td>Perintah operator; kembali sendiri saat dilepas (momentary).</td></tr>
+            <tr><td>Emergency stop (S0)</td><td>NC, terkunci saat ditekan</td><td>Menghentikan bahaya; dilepas dengan memutar.</td></tr>
+            <tr><td>Selector</td><td>NO/NC sesuai posisi</td><td>Memilih mode, misalnya MANUAL/AUTO.</td></tr>
+            <tr><td>Lampu indikator (H)</td><td>X1-X2</td><td>Status: RUN, TRIP, siap.</td></tr>
+            <tr><td>Timer (KT)</td><td>A1-A2; kontak tunda NC 55-56, NO 67-68</td><td>On-delay: kontak berubah setelah waktu tunda sejak kumparan ON. Off-delay: kontak kembali setelah waktu tunda sejak kumparan OFF.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>NO, NC, dan fail-safe</h3>
+      <p><b>NO</b> (normally open) terbuka saat tidak ditekan; <b>NC</b> (normally closed) tertutup saat tidak ditekan. STOP dan E-stop memakai NC karena <b>fail-safe</b>: bila kabelnya putus atau kontaknya rusak terbuka, rangkaian ikut terputus dan mesin berhenti. Dengan NO, kabel putus membuat STOP mati fungsi padahal motor tetap jalan.</p>
+      <h3>Membaca rating</h3>
+      <ul class="list">
+        <li><b>Tegangan kumparan</b> harus sama dengan tegangan rangkaian kontrol (mis. 24 VDC atau 220 VAC). Kumparan 24 VDC yang diberi 220 VAC akan terbakar.</li>
+        <li><b>Kategori AC-3</b> menyatakan arus kontak untuk menyalakan dan mematikan motor induksi sangkar saat berjalan. Pilih kontaktor dengan arus AC-3 ≥ arus nominal motor.</li>
+        <li><b>Setelan TOR</b> diatur sama dengan arus nominal motor pada pelat nama.</li>
+      </ul>
+      <div class="callout warn"><b class="t">K3 panel</b><p>Identifikasi dan uji kontinuitas komponen dilakukan dalam kondisi power-off. Kenali letak E-stop sebelum praktik. Gunakan multimeter pada fungsi kontinuitas/ohm saat panel tidak bertegangan. Latihan mengukur kontak bisa dicoba di <a href="#gangguan">Lab gangguan</a> (mode latihan bebas).</p></div>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p2">
+      <h2><span class="num">P2</span>Diagram kontrol-daya dan rangkaian pengunci (DOL)</h2>
+      <p>Satu rangkaian motor punya dua gambar. <b>Diagram daya</b> menunjukkan jalur arus besar: MCB 3 fasa → kontak utama K1 → TOR → motor. <b>Diagram kontrol</b> menunjukkan logikanya: sekering → TOR 95-96 → STOP → START yang diparalel kontak bantu K1 13-14 → kumparan K1.</p>
+      <figure class="fig fig-sm"><img src="assets/img/image1.png" alt="Diagram kontrol starter DOL format ladder: TOR 95-96, STOP 11-12, START 13-14 paralel K1 13-14, kumparan K1; jalur lampu RUN dan TRIP" loading="lazy" width="580" height="580"><figcaption>Gambar 1.1 Diagram kontrol starter DOL (format ladder) dengan pengunci K1 13-14 dan proteksi TOR</figcaption></figure>
+      <p><b>Pengunci (self-holding)</b>: setelah START ditekan, K1 menarik dan kontak bantunya 13-14 ikut menutup. Karena kontak itu paralel dengan START, arus kumparan tetap mengalir saat START dilepas. STOP (NC, seri) memutus jalur dan K1 lepas. TOR trip juga memutus jalur, sementara kontak 97-98-nya menyalakan lampu TRIP.</p>
+      <div class="widget"><div class="widget-title">Rangkaian DOL <span class="tag mask">coba</span></div><p class="small muted">Tekan dan tahan S1, lepas, lalu tekan S0. Bandingkan dengan variasi yang salah pasang. Jalur hijau = kontak tertutup dan dialiri arus.</p><div data-w="mini-relay-dol"></div></div>
+      <h3>Penomoran kabel dan referensi silang</h3>
+      <p>Setiap titik sambungan diberi nomor kabel yang sama di diagram dan di marker kabel. Referensi silang menunjukkan di jalur mana kontak bantu sebuah kontaktor dipakai, sehingga teknisi bisa menelusuri rangkaian tanpa menebak.</p>
+      <h3>Urutan uji rangkaian DOL (isi pada test log)</h3>
+      <ol class="list small">
+        <li>Power OFF: inspeksi visual, kencangkan terminal, uji kontinuitas.</li>
+        <li>Pastikan tidak ada hubung singkat pada sisi kontrol.</li>
+        <li>Izin guru → power ON rangkaian kontrol tanpa beban motor.</li>
+        <li>Tekan START → harapan: K1 ON dan tetap ON, H1 RUN menyala.</li>
+        <li>Tekan STOP → harapan: K1 OFF, H1 padam.</li>
+        <li>Tekan tombol test TOR → harapan: K1 OFF, H2 TRIP menyala.</li>
+        <li>Tekan START saat TOR trip → harapan: K1 tetap OFF.</li>
+        <li>Catat harapan vs aktual; power OFF sebelum perbaikan apa pun.</li>
+      </ol>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p3">
+      <h2><span class="num">P3</span>Interlock dan kendali putar kanan-kiri</h2>
+      <p>Arah putaran motor induksi 3 fasa dibalik dengan <b>menukar dua fasa</b> (misalnya L1 dan L3). K1 menghubungkan urutan L1-L2-L3, K2 urutan L3-L2-L1. Bila K1 dan K2 menutup bersamaan, dua fasa terhubung langsung: <b>hubung singkat antarfasa</b>. Karena itu dibutuhkan interlock.</p>
+      <div class="tbl-wrap">
+        <table class="tbl small">
+          <thead><tr><th>Jenis interlock</th><th>Cara kerja</th><th>Kelebihan / keterbatasan</th></tr></thead>
+          <tbody>
+            <tr><td>Kontak bantu (listrik)</td><td>NC K2 21-22 seri di jalur kumparan K1, NC K1 21-22 di jalur K2.</td><td>Wajib. K2 baru bisa menarik setelah K1 benar-benar lepas.</td></tr>
+            <tr><td>Tombol</td><td>Kontak NC tombol KIRI seri di jalur K1, dan sebaliknya.</td><td>Menekan tombol lawan langsung memutus arah sebelumnya; tetap perlu interlock kontak bantu.</td></tr>
+            <tr><td>Mekanis</td><td>Tuas mekanis di antara dua kontaktor.</td><td>Tetap bekerja walau kumparan bermasalah; dipasang bersama interlock listrik.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="widget"><div class="widget-title">Putar kanan-kiri <span class="tag mask">coba</span></div><p class="small muted">Tekan KANAN, lalu KIRI tanpa STOP. Bandingkan dengan versi tanpa interlock.</p><div data-w="mini-relay-rev"></div></div>
+      <div class="callout warn"><b class="t">Uji tanpa beban</b><p>Pengujian pertama dilakukan tanpa beban motor. Interlock tidak boleh dilepas atau di-bypass untuk "mempercepat" pembalikan.</p></div>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p4">
+      <h2><span class="num">P4</span>Timer dan starter bintang-segitiga</h2>
+      <p>Motor yang di-start langsung (DOL) menarik arus start sekitar <b>5-7 kali arus nominal</b>. Pada motor besar, lonjakan ini membebani jaringan. Starter <b>bintang-segitiga</b> menyalakan motor dalam hubungan bintang dulu: tegangan tiap kumparan turun menjadi 1/√3, sehingga <b>arus start dan torsi start menjadi sekitar sepertiga</b> dibanding start langsung pada hubungan segitiga. Setelah motor berputar, hubungan dipindah ke segitiga.</p>
+      <div data-w="yd" class="widget"></div>
+      <h3>Urutan kerja</h3>
+      <ol class="list">
+        <li>START: K1 (utama) dan K2 (bintang) aktif. Timer KT mulai menghitung.</li>
+        <li>Setelah waktu tunda (latihan: 5 s), kontak tunda NC KT memutus K2.</li>
+        <li>K2 lepas, interlock K2 21-22 menutup, lalu K3 (segitiga) aktif lewat kontak tunda NO KT.</li>
+        <li>Interlock K2-K3 mencegah keduanya menutup bersamaan, karena itu berarti hubung singkat di titik bintang.</li>
+      </ol>
+      <div class="widget"><div class="widget-title">Starter bintang-segitiga relay <span class="tag mask">coba</span></div><p class="small muted">Tekan S1 dan amati kontaktor serta arus. Timer KT diwakili blok TIM (5,0 s).</p><div data-w="mini-relay-yd"></div></div>
+      <div class="callout"><b class="t">Timer on-delay dan off-delay</b><p><b>On-delay</b>: kontak tunda berubah setelah waktu tunda sejak kumparan timer diberi tegangan, dan kembali seketika saat kumparan OFF. <b>Off-delay</b>: kontak berubah seketika saat kumparan ON, lalu kembali setelah waktu tunda sejak kumparan OFF. Starter bintang-segitiga memakai on-delay.</p></div>
+      <div class="callout warn"><b class="t">Catatan wiring trainer</b><p>Pada putar kanan-kiri, K1 dan K2 saling di-interlock. Pada bintang-segitiga, K1 dan K2 <b>justru aktif bersamaan</b>; yang di-interlock adalah K2 dengan K3. Jadi saat trainer dipakai untuk bintang-segitiga, kontak NC K1 harus dilepas dari jalur kumparan K2. Periksa ulang dengan guru sebelum power-on.</p></div>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p5">
+      <h2><span class="num">P5</span>Pengujian dan troubleshooting relay logic</h2>
+      <p>Troubleshooting terstruktur menghemat waktu dan menghindari "ganti-ganti komponen". Langkahnya:</p>
+      <ol class="list">
+        <li><b>Amati gejala</b> dan catat: apa yang terjadi, kapan, lampu mana yang menyala.</li>
+        <li><b>Baca diagram</b> dan tandai jalur yang seharusnya dialiri arus.</li>
+        <li><b>Bagi rangkaian (half-split)</b>: ukur di tengah jalur. Bila bagian depan baik, masalah ada di belakang, lalu bagi dua lagi.</li>
+        <li><b>Ukur</b>: utamakan uji kontinuitas saat power-off. Pengukuran tegangan hanya dengan probe aman dan pengawasan guru.</li>
+        <li><b>Temukan akar masalah</b>, perbaiki, lalu <b>uji ulang</b> dan catat di troubleshooting log.</li>
+      </ol>
+      <div class="tbl-wrap">
+        <table class="tbl small">
+          <thead><tr><th>Gejala</th><th>Kemungkinan penyebab</th><th>Bukti yang dicari</th></tr></thead>
+          <tbody>
+            <tr><td>K1 tidak menarik, semua lampu padam</td><td>Sekering kontrol putus, catu kontrol mati</td><td>Kontinuitas sekering; tegangan di titik 1</td></tr>
+            <tr><td>K1 tidak menarik, lampu TRIP menyala</td><td>TOR trip</td><td>95-96 terbuka; penyebab beban lebih</td></tr>
+            <tr><td>K1 tidak menarik, lampu sumber menyala</td><td>Kabel lepas, kontak START rusak, kumparan putus</td><td>Kontinuitas bertahap; resistansi kumparan (ratusan ohm, bukan OL)</td></tr>
+            <tr><td>K1 hanya ON selama START ditekan</td><td>Kontak pengunci tidak terhubung</td><td>Kontinuitas 13-14 saat K1 ditekan manual</td></tr>
+            <tr><td>K1 bergetar (chatter)</td><td>Pengunci di kontak NC, tegangan kumparan drop</td><td>Pemasangan terminal 13-14 vs 21-22</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="widget"><div class="widget-title">Multimeter virtual: rangkaian kontrol DOL <span class="tag mask">kasus misteri</span></div><div data-w="meter"></div></div>
+      <div class="meet-box"></div>
+    </section>
+    <div data-modfoot="1"></div>
+    <nav class="pager"><a href="#peta"><small>Sebelumnya</small>Peta 32 pertemuan</a><a class="next" href="#m2"><small>Berikutnya</small>Modul 2 · Konsep PLC</a></nav>
+  </div>
+</section>
+
+<!-- ============================== MODUL 2 ============================== -->
+<section class="view" id="v-m2" data-title="Modul 2 · Konsep PLC" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow"><span class="rbar b2"></span>Modul 2 · Pertemuan 6-7 · Semester ganjil</div>
+      <h1>Konsep dan arsitektur PLC</h1>
+      <p class="lead">PLC menggantikan kabel logika dengan program yang dieksekusi berulang dalam siklus scan. Memahami siklus scan dan alamat memori adalah kunci untuk membaca, menulis, dan memperbaiki program.</p>
+    </div>
+    <div class="b2" data-modhead="2"></div>
+
+    <section class="block" id="p6">
+      <h2><span class="num">P6</span>Struktur PLC, siklus scan, dan perbandingan dengan relay logic</h2>
+      <p><b>Programmable logic controller (PLC)</b> adalah komputer industri yang membaca sinyal perangkat lapangan, menjalankan program kendali, lalu menggerakkan aktuator. Mengubah urutan kerja mesin cukup dengan mengubah program, tanpa membongkar kabel.</p>
+      <div class="tbl-wrap">
+        <table class="tbl small">
+          <thead><tr><th>Blok</th><th>Fungsi</th><th>Di trainer CP1E</th></tr></thead>
+          <tbody>
+            <tr><td>Catu daya</td><td>Memberi daya CPU dan kadang catu 24 VDC untuk sensor</td><td>Model "-A": masukan 100-240 VAC</td></tr>
+            <tr><td>CPU</td><td>Menjalankan program dan mengatur siklus scan</td><td>LED POWER, RUN, ERR/ALM</td></tr>
+            <tr><td>Memori program dan data</td><td>Menyimpan program, bit, word, timer, counter</td><td>Area CIO, W, H, A, T, C, D</td></tr>
+            <tr><td>Unit input</td><td>Mengubah sinyal 24 VDC lapangan menjadi bit (dengan optocoupler)</td><td>Terminal 0.00 dst., COM input, LED input</td></tr>
+            <tr><td>Unit output</td><td>Menggerakkan beban lewat relai atau transistor</td><td>Terminal 100.00 dst., COM output, LED output</td></tr>
+            <tr><td>Port pemrograman/komunikasi</td><td>Hubungan ke PC, HMI, PLC lain</td><td>USB, port RS-232C, slot option board</td></tr>
+            <tr><td>Unit ekspansi</td><td>Menambah I/O atau fungsi</td><td>Unit I/O ekspansi CP1W</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><b>Compact</b> (CPU, catu, dan I/O dalam satu badan, seperti CP1E) cocok untuk mesin kecil. <b>Modular</b> (rak berisi modul terpisah) dipakai sistem besar karena I/O mudah ditambah dan diganti.</p>
+      <h3>Siklus scan</h3>
+      <p>PLC bekerja berulang: <b>baca input</b> (status semua terminal disalin ke memori), <b>eksekusi program</b> dari rung pertama sampai END, <b>perbarui output</b>, lalu <b>layanan komunikasi dan diagnosis</b>. Waktu satu putaran disebut <b>waktu scan</b>, biasanya beberapa milidetik.</p>
+      <div class="widget"><div class="widget-title">Siklus scan dan pulsa singkat <span class="tag mask">interaktif</span></div><div data-w="scan"></div></div>
+      <div class="tbl-wrap">
+        <table class="tbl small">
+          <thead><tr><th>Aspek</th><th>Relay logic</th><th>PLC</th></tr></thead>
+          <tbody>
+            <tr><td>Mengubah urutan kerja</td><td>Bongkar dan pasang ulang kabel</td><td>Ubah program</td></tr>
+            <tr><td>Jumlah kontak</td><td>Terbatas jumlah kontak bantu</td><td>Satu bit bisa dipakai berkali-kali</td></tr>
+            <tr><td>Timer dan counter</td><td>Komponen fisik</td><td>Ratusan, di dalam memori</td></tr>
+            <tr><td>Troubleshooting</td><td>Ukur titik demi titik</td><td>Monitoring online, LED I/O, pesan error</td></tr>
+            <tr><td>Keterbatasan</td><td>Panel besar, banyak kabel</td><td>Butuh software dan keahlian; fungsi keselamatan tetap hard-wired</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><b class="t">Contoh tabel spesifikasi</b><p class="small">CP1E-N30DR-A: 18 input DC, 12 output relai, catu daya 100-240 VAC, port USB dan RS-232C bawaan, satu slot option board (mis. CP1W-CIF11 untuk RS-485). Huruf pada nama model: <b>D</b> = input DC, <b>R</b> = output relai (<b>T</b> = transistor), <b>A</b> = catu AC. Salin data dari datasheet trainer sekolahmu.</p></div>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p7">
+      <h2><span class="num">P7</span>Pengalamatan Omron, bahasa IEC 61131-3, dan konversi relay logic ke ladder</h2>
+      <p>Alamat bit Omron ditulis <b>word.bit</b>: <code>0.00</code> berarti word 0 bit 00, <code>100.03</code> berarti word 100 bit 03. Satu word = 16 bit (00-15).</p>
+      <div class="tbl-wrap">
+        <table class="tbl small">
+          <thead><tr><th>Area</th><th>Contoh alamat</th><th>Fungsi</th></tr></thead>
+          <tbody>
+            <tr><td>Input (CIO)</td><td><code>0.00</code>, <code>0.01</code>, …</td><td>Bit dari perangkat lapangan (tombol, sensor, kontak TOR)</td></tr>
+            <tr><td>Output (CIO)</td><td><code>100.00</code>, <code>100.01</code>, …</td><td>Bit ke kontaktor, solenoid valve, dan lampu</td></tr>
+            <tr><td>Work (W)</td><td><code>W0.00</code>-<code>W99.15</code></td><td>Bit bantu internal; tidak dipertahankan saat daya padam</td></tr>
+            <tr><td>Holding (H)</td><td><code>H0.00</code>-<code>H49.15</code></td><td>Bit/word yang mempertahankan status saat daya padam</td></tr>
+            <tr><td>Auxiliary (A)</td><td><code>A200.11</code> (P_First_Cycle)</td><td>Flag sistem: siklus pertama, error, status</td></tr>
+            <tr><td>Timer (T)</td><td><code>T000</code>-<code>T255</code></td><td>Completion flag dan present value timer</td></tr>
+            <tr><td>Counter (C)</td><td><code>C000</code>-<code>C255</code></td><td>Completion flag dan present value counter</td></tr>
+            <tr><td>Data Memory (D)</td><td><code>D0</code>-<code>D2047</code> (tipe E), <code>D0</code>-<code>D8191</code> (tipe N)</td><td>Word data: setpoint, hasil hitung, data HMI</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small muted">Rentang di atas untuk CP1E. CP1L dan CP2E punya area lebih besar (misalnya W0-W511); periksa manual CPU trainer.</p>
+      <div class="widget"><div class="widget-title">Pembaca alamat <span class="tag mask">interaktif</span></div><div data-w="addr"></div></div>
+      <h3>Lima bahasa IEC 61131-3</h3>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Bahasa</th><th>Bentuk</th><th>Cocok untuk</th></tr></thead><tbody>
+        <tr><td>LD (Ladder Diagram)</td><td>Grafis kontak dan koil</td><td>Logika bit, mirip relay; paling banyak dipakai teknisi</td></tr>
+        <tr><td>FBD (Function Block Diagram)</td><td>Grafis blok fungsi</td><td>Pengolahan sinyal, kendali proses</td></tr>
+        <tr><td>ST (Structured Text)</td><td>Teks mirip Pascal</td><td>Perhitungan dan algoritma</td></tr>
+        <tr><td>IL (Instruction List)</td><td>Teks mnemonik (LD, AND, OUT)</td><td>Program pendek; dinyatakan usang di edisi terbaru IEC 61131-3, tetapi mnemonik Omron tetap dipakai</td></tr>
+        <tr><td>SFC (Sequential Function Chart)</td><td>Langkah dan transisi</td><td>Sekuens mesin (dasar GRAFCET di Modul 7)</td></tr>
+      </tbody></table></div>
+      <h3>Kontak NC di lapangan ditulis kontak NO di ladder</h3>
+      <p>Tombol STOP berkontak NC, jadi saat tidak ditekan input <code>0.01</code> bernilai <b>ON</b>. Agar rung tertutup saat normal, input itu ditulis sebagai <b>kontak NO</b> (<code>AND 0.01</code>). Saat STOP ditekan atau kabel putus, input OFF dan rung terbuka. Pertanyaan yang tepat bukan "tombolnya NO atau NC", tetapi "input ini ON atau OFF saat kondisi normal".</p>
+      <figure class="fig fig-sm"><img src="assets/img/image2.png" alt="Program ladder DOL PLC Omron: 0.00 OR 100.00, AND 0.01, AND 0.02, OUT 100.00; lampu RUN dan TRIP" loading="lazy" width="580" height="580"><figcaption>Gambar 2.1 Program ladder starter DOL pada PLC Omron (STOP dan TOR berkontak NC di lapangan)</figcaption></figure>
+      <div class="widget"><div class="widget-title">Konversi DOL ke ladder <span class="tag mask">simulasi</span></div><div data-w="mini-plc-dol"></div></div>
+      <h3>Langkah di CX-Programmer</h3>
+      <ol class="list small">
+        <li>File → New, pilih Device Type sesuai CPU trainer (mis. CP1E-N) dan jenis koneksi USB.</li>
+        <li>Isi tabel simbol: START 0.00, STOP 0.01, TOR 0.02, K1 100.00, H1 100.03, H2 100.04.</li>
+        <li>Tulis rung, lalu Program → Compile (program check) sampai 0 error.</li>
+        <li>Simulasi: Simulation → Work Online Simulator, ubah status input dengan Set/Reset, amati monitoring.</li>
+        <li>Simpan project dengan nama versi (mis. <code>DOL_kelompok2_v1.cxp</code>).</li>
+      </ol>
+      <div class="callout warn"><b class="t">Yang tetap harus hard-wired</b><p>E-stop yang memutus daya aktuator, TOR pada rangkaian daya, dan interlock kontaktor pembalik. Program hanya lapis pengaman tambahan karena PLC, program, atau kontak bisa gagal.</p></div>
+      <div class="meet-box"></div>
+    </section>
+    <div data-modfoot="2"></div>
+    <nav class="pager"><a href="#m1"><small>Sebelumnya</small>Modul 1 · Relay logic</a><a class="next" href="#m3"><small>Berikutnya</small>Modul 3 · Wiring &amp; commissioning</a></nav>
+  </div>
+</section>
+
+<!-- ============================== MODUL 3 ============================== -->
+<section class="view" id="v-m3" data-title="Modul 3 · Wiring & commissioning" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow"><span class="rbar b3"></span>Modul 3 · Pertemuan 8-10 · Semester ganjil</div>
+      <h1>Wiring dan commissioning rangkaian kendali PLC</h1>
+      <p class="lead">Program yang benar tidak berguna bila wiring salah. Commissioning yang sistematis dan terdokumentasi membuktikan setiap titik I/O bekerja sebelum mesin dijalankan.</p>
+    </div>
+    <div class="b3" data-modhead="3"></div>
+
+    <section class="block" id="p8">
+      <h2><span class="num">P8</span>Wiring diagram PLC, I/O list, dan input NPN/PNP</h2>
+      <p>Terminal PLC Omron dikelompokkan: catu daya, <b>COM input</b> bersama titik input, dan <b>COM output</b> per kelompok titik output. Input DC CP1E bisa dipakai dua arah, jadi polaritas COM ditentukan oleh jenis sensor:</p>
+      <div class="compare">
+        <div class="card"><h3>Sensor PNP (sourcing)</h3><p class="small">Keluaran (BK) memberi <b>+24 V</b> saat aktif. <b>COM input ke 0 V.</b> Tombol juga disuplai dari +24 V.</p></div>
+        <div class="card"><h3>Sensor NPN (sinking)</h3><p class="small">Keluaran (BK) menarik ke <b>0 V</b> saat aktif. <b>COM input ke +24 V.</b></p></div>
+      </div>
+      <div class="widget"><div class="widget-title">Sensor 3 kabel ke input DC <span class="tag mask">interaktif</span></div><div data-w="npn"></div></div>
+      <p class="small">Warna kabel sensor 3 kabel: <b>BN</b> (cokelat) +24 V, <b>BU</b> (biru) 0 V, <b>BK</b> (hitam) keluaran. Kalau sensor dan COM tidak cocok, LED sensor bisa menyala tetapi LED input PLC tetap padam.</p>
+      <h3>I/O list</h3>
+      <p>I/O list memuat alamat, simbol, perangkat lapangan, tipe kontak/sensor, nomor kabel, dan terminal. Ini dokumen pertama yang dicocokkan saat commissioning dan troubleshooting.</p>
+      <div class="tbl-wrap">
+        <table class="tbl small">
+          <thead><tr><th>Alamat</th><th>Simbol</th><th>Perangkat lapangan</th><th>Tipe</th><th>Catatan</th></tr></thead>
+          <tbody>
+            <tr><td>0.00</td><td>START</td><td>S1 tombol hijau</td><td>NO</td><td>-</td></tr>
+            <tr><td>0.01</td><td>STOP</td><td>S0 tombol merah</td><td>NC</td><td>fail-safe: kabel putus = berhenti</td></tr>
+            <tr><td>0.02</td><td>TOR</td><td>F3 kontak 95-96</td><td>NC</td><td>trip = input OFF</td></tr>
+            <tr><td>0.03</td><td>FWD</td><td>S2 tombol putar kanan</td><td>NO</td><td>-</td></tr>
+            <tr><td>0.04</td><td>REV</td><td>S3 tombol putar kiri</td><td>NO</td><td>-</td></tr>
+            <tr><td>0.05</td><td>PRODUK</td><td>B1 proximity 3 kabel</td><td>PNP</td><td>COM input ke 0 V</td></tr>
+            <tr><td>0.06</td><td>RESET</td><td>S4 tombol biru</td><td>NO</td><td>-</td></tr>
+            <tr><td>100.00</td><td>K1</td><td>kontaktor kanan/utama</td><td>24 VDC</td><td>interlock K2 21-22 (mode kanan-kiri)</td></tr>
+            <tr><td>100.01</td><td>K2</td><td>kontaktor kiri/bintang</td><td>24 VDC</td><td>kanan-kiri: interlock K1; bintang-segitiga: interlock K3</td></tr>
+            <tr><td>100.02</td><td>K3</td><td>kontaktor segitiga</td><td>24 VDC</td><td>interlock K2 21-22</td></tr>
+            <tr><td>100.03</td><td>H1</td><td>lampu RUN</td><td>24 VDC</td><td>-</td></tr>
+            <tr><td>100.04</td><td>H2</td><td>lampu TRIP/alarm</td><td>24 VDC</td><td>-</td></tr>
+            <tr><td>100.05</td><td>H3</td><td>lampu batch selesai</td><td>24 VDC</td><td>-</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="fig"><img src="assets/img/image3.png" alt="Wiring input PNP dan output relai PLC Omron CP1E N30DR-A dengan E-stop hard-wired memutus COM keluaran dan interlock kontaktor" loading="lazy" width="610" height="550"><figcaption>Gambar 3.1 Contoh wiring input PNP dan output relai PLC Omron CP1E dengan E-stop hard-wired dan interlock kontaktor</figcaption></figure>
+      <div class="callout"><b class="t">Membaca Gambar 3.1 dengan teliti</b><p class="small">Gambar menyederhanakan satu COM keluaran. Pada CP1E 30 titik, COM keluaran relai terbagi dalam beberapa kelompok; <b>semua COM yang memberi daya ke aktuator harus lewat E-stop</b>, bukan hanya satu. Catu 24 VDC di gambar adalah catu I/O; PLC model "-A" sendiri diberi 100-240 VAC. Cocokkan dengan diagram terminal di manual hardware (W479).</p></div>
+      <p>Susun I/O list kelompokmu di <a href="#log">Log kerja → I/O list</a>.</p>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p9">
+      <h2><span class="num">P9</span>Pemasangan wiring input-output dan pemeriksaan power-off</h2>
+      <p>Wiring yang rapi mempercepat troubleshooting dan mengurangi gangguan. Pegangan dasarnya:</p>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Warna kabel (IEC 60204-1, anjuran)</th><th>Dipakai untuk</th></tr></thead><tbody>
+        <tr><td>Hijau-kuning</td><td>Proteksi tanah (PE), wajib</td></tr><tr><td>Hitam</td><td>Rangkaian daya AC/DC</td></tr><tr><td>Merah</td><td>Rangkaian kendali AC</td></tr>
+        <tr><td>Biru</td><td>Rangkaian kendali DC</td></tr><tr><td>Biru muda</td><td>Netral</td></tr><tr><td>Oranye</td><td>Rangkaian interlock yang dicatu sumber luar</td></tr></tbody></table></div>
+      <p class="small muted">Ikuti ketentuan sekolah bila berbeda, asalkan konsisten dan tercatat di diagram.</p>
+      <ul class="list">
+        <li><b>Ferrule</b> di setiap ujung kabel serabut, dijepit dengan tang crimp.</li>
+        <li><b>Marker kabel</b> sesuai nomor di wiring diagram, di kedua ujung.</li>
+        <li>Kabel lewat <b>duct</b>, tidak menyilang di depan terminal; terminal dikencangkan.</li>
+        <li>Pasang <b>input dahulu</b>, uji, baru output.</li>
+      </ul>
+      <h3>Checklist power-off</h3>
+      <ul class="checklist">
+        <li><label><input type="checkbox" data-save="po-1"><span>Inspeksi visual: tidak ada serabut lepas, ferrule terpasang, marker sesuai diagram.</span></label></li>
+        <li><label><input type="checkbox" data-save="po-2"><span>Uji kontinuitas tiap jalur sesuai wiring diagram.</span></label></li>
+        <li><label><input type="checkbox" data-save="po-3"><span>Tidak ada hubung singkat +24 V ke 0 V (ukur resistansi antara keduanya).</span></label></li>
+        <li><label><input type="checkbox" data-save="po-4"><span>Polaritas COM input sesuai jenis sensor; tidak ada tegangan AC masuk ke input DC.</span></label></li>
+        <li><label><input type="checkbox" data-save="po-5"><span>Sekering terpasang dan sesuai rating; E-stop memutus semua COM keluaran.</span></label></li>
+        <li><label><input type="checkbox" data-save="po-6"><span>Hasil dicatat di lembar commissioning dan diperiksa teman (two-person check).</span></label></li>
+      </ul>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p10">
+      <h2><span class="num">P10</span>Power-on, komunikasi PC-PLC, I/O check, dan dokumentasi commissioning</h2>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Mode PLC</th><th>Program jalan?</th><th>Kegunaan</th></tr></thead><tbody>
+        <tr><td>PROGRAM</td><td>Tidak, output OFF</td><td>Unduh program, ubah setelan, I/O check dengan force</td></tr>
+        <tr><td>MONITOR</td><td>Ya</td><td>Uji sambil memantau dan mengubah nilai secara online</td></tr>
+        <tr><td>RUN</td><td>Ya</td><td>Operasi normal</td></tr></tbody></table></div>
+      <h3>Urutan commissioning trainer PLC</h3>
+      <ol class="list small">
+        <li>Power OFF + LOTO: inspeksi visual, marker, ferrule, terminal kencang.</li>
+        <li>Uji kontinuitas tiap jalur; pastikan +24 V tidak terhubung ke 0 V.</li>
+        <li>Izin guru → power ON tanpa beban; cek LED POWER, ERR/ALM padam.</li>
+        <li>Hubungkan USB, CX-Programmer online, PLC pada mode PROGRAM.</li>
+        <li>I/O check input: tekan tiap perangkat → LED + bit monitoring ON.</li>
+        <li>I/O check output: force set/reset satu per satu → beban sesuai.</li>
+        <li>Batalkan semua forcing; unduh program uji; mode MONITOR/RUN.</li>
+        <li>Uji fungsi sesuai test log; catat versi program dan tanda tangan.</li>
+      </ol>
+      <p><b>I/O check</b> membuktikan setiap titik wiring terhubung ke alamat yang benar. <b>Uji fungsi</b> membuktikan program menjalankan urutan kerja. Keduanya dibutuhkan: program yang lulus simulator tetap gagal bila dua kabel tertukar.</p>
+      <div class="widget"><div class="widget-title">Lab commissioning <span class="tag mask">trainer dengan kesalahan tersembunyi</span></div><div data-w="comm"></div></div>
+      <div class="meet-box"></div>
+    </section>
+    <div data-modfoot="3"></div>
+    <nav class="pager"><a href="#m2"><small>Sebelumnya</small>Modul 2 · Konsep PLC</a><a class="next" href="#m4"><small>Berikutnya</small>Modul 4 · Pemrograman PLC</a></nav>
+  </div>
+</section>
+
+<!-- ============================== MODUL 4 ============================== -->
+<section class="view" id="v-m4" data-title="Modul 4 · Pemrograman PLC" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow"><span class="rbar b4"></span>Modul 4 · Pertemuan 11-16 · Semester ganjil</div>
+      <h1>Pemrograman PLC untuk kendali elektromekanik</h1>
+      <p class="lead">Program PLC yang baik bukan hanya berjalan, tetapi aman saat gagal: STOP berprioritas, interlock berlapis, tidak ada restart tak terduga, dan setiap fungsi dibuktikan dengan uji.</p>
+    </div>
+    <div class="b4" data-modhead="4"></div>
+
+    <section class="block" id="p11">
+      <h2><span class="num">P11</span>Instruksi dasar bit dan rangkaian pengunci pada PLC</h2>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Mnemonik</th><th>Di ladder</th><th>Arti</th></tr></thead><tbody>
+        <tr><td><code>LD a</code> / <code>LD NOT a</code></td><td>kontak NO / NC di awal rung</td><td>Memulai kondisi baru</td></tr>
+        <tr><td><code>AND a</code> / <code>AND NOT a</code></td><td>kontak seri</td><td>Kedua kondisi harus terpenuhi</td></tr>
+        <tr><td><code>OR a</code> / <code>OR NOT a</code></td><td>kontak paralel</td><td>Salah satu cukup</td></tr>
+        <tr><td><code>AND LD</code> / <code>OR LD</code></td><td>dua blok seri / paralel</td><td>Menggabungkan blok logika</td></tr>
+        <tr><td><code>OUT b</code> / <code>OUT NOT b</code></td><td>koil</td><td>Bit = hasil logika (atau kebalikannya)</td></tr>
+        <tr><td><code>END(001)</code></td><td>akhir program</td><td>Wajib di akhir</td></tr></tbody></table></div>
+      <ul class="list">
+        <li>Rung dieksekusi <b>dari kiri ke kanan, dari atas ke bawah</b>.</li>
+        <li><b>Koil ganda</b> (satu alamat ditulis OUT di dua rung) dilarang: rung terakhir yang menentukan, sehingga rung pertama seolah tidak berpengaruh.</li>
+        <li>Beri <b>simbol dan komentar</b> pada setiap alamat dan rung agar program bisa dibaca orang lain.</li>
+      </ul>
+      <div class="formula small">LD 0.00 ; OR 100.00 ; AND 0.01 ; AND 0.02 ; OUT 100.00 → K1 = (START + K1) · STOP · TOR</div>
+      <div class="widget"><div class="widget-title">DOL di PLC <span class="tag mask">uji tabel kebenaran</span></div><p class="small muted">Uji kasus normal dan gagal: TOR trip, START dan STOP ditekan bersamaan. Program lengkap dan misinya ada di <a href="#lab">Lab PLC</a>.</p><div data-w="mini-plc-dol"></div></div>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p12">
+      <h2><span class="num">P12</span>SET/RSET, KEEP, dan deteksi tepi</h2>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Instruksi</th><th>Perilaku</th><th>Catatan keselamatan</th></tr></thead><tbody>
+        <tr><td><code>SET</code> / <code>RSET</code></td><td>Menyalakan / mematikan bit dan mempertahankannya</td><td>Yang dieksekusi <b>terakhir</b> menang: tulis RSET (STOP) di bawah SET agar STOP berprioritas</td></tr>
+        <tr><td><code>KEEP(011)</code></td><td>Latch dengan masukan set dan reset dalam satu instruksi</td><td>Reset berprioritas bila keduanya ON</td></tr>
+        <tr><td><code>DIFU(013)</code> / <code>DIFD(014)</code></td><td>Bit ON satu scan saat kondisi naik / turun</td><td>Dipakai untuk toggle dan menghitung kejadian</td></tr>
+        <tr><td><code>A200.11</code> P_First_Cycle</td><td>ON hanya pada scan pertama setelah RUN</td><td>Untuk inisialisasi: mematikan langkah, mengisi setpoint awal</td></tr></tbody></table></div>
+      <p>Bit <b>W</b> hilang saat daya padam, bit <b>H</b> bertahan. Bila motor dikunci dengan bit retentif, motor bisa <b>berputar sendiri saat daya pulih</b>. Karena itu latch motor memakai bit non-retentif, dan setelah daya pulih motor selalu butuh START ulang.</p>
+      <div class="widget"><div class="widget-title">Tiga teknik latch <span class="tag mask">bandingkan</span></div><p class="small muted">Tahan START dan STOP bersamaan pada versi SET/RSET dan "RSET sebelum SET". Pada versi toggle, tekan START berkali-kali lalu coba tahan.</p><div data-w="mini-plc-latch"></div></div>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p13">
+      <h2><span class="num">P13</span>Interlock program dan hardware pada kendali putar kanan-kiri</h2>
+      <p><b>Interlock program</b>: rung K1 memuat kontak NC output K2 (<code>AND NOT 100.01</code>) dan tombol REV, begitu juga sebaliknya. <b>Interlock hardware</b>: kontak bantu NC K2 21-22 di jalur kumparan K1 pada wiring output, dan sebaliknya.</p>
+      <figure class="fig"><img src="assets/img/image4.png" alt="Ladder putar kanan-kiri: rung K1 dengan interlock tombol 0.04 dan output 100.01; rung K2 dengan interlock 0.03 dan 100.00" loading="lazy" width="580" height="380"><figcaption>Gambar 4.1 Ladder putar kanan-kiri dengan interlock tombol dan interlock output (interlock hardware tetap dipasang pada wiring)</figcaption></figure>
+      <p>Mengapa interlock program saja tidak cukup? Program membaca <b>bit output</b>, bukan kondisi kontak fisik. Kontaktor butuh beberapa puluh milidetik untuk lepas, dan kontaknya bisa <b>lengket</b> (las). Bila K1 lengket, bit 100.00 sudah OFF sehingga program mengizinkan K2, padahal kontak utama K1 masih menutup.</p>
+      <div class="widget"><div class="widget-title">Eksperimen kontak lengket <span class="tag mask">coba</span></div><ol class="list small"><li>Jalankan FWD, STOP, lalu REV: normal.</li><li>Centang "kontak utama K1 lengket", hilangkan centang interlock hardware, ulangi: terjadi hubung singkat.</li><li>Centang lagi interlock hardware: K2 tidak bisa menarik, sistem tetap aman.</li></ol><div data-w="mini-plc-rev"></div></div>
+      <h3>Jeda pembalikan arah</h3>
+      <p>Membalik putaran langsung dari kanan ke kiri membuat arus sangat besar dan membebani mekanik. Tambahkan jeda (mis. 1-2 s) dengan timer: setelah motor berhenti, tombol arah lawan baru diterima setelah timer selesai. Contoh program "jeda 2 s" bisa dimuat di <a href="#lab">Lab PLC</a> lewat tab Mnemonik.</p>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p14">
+      <h2><span class="num">P14</span>Timer PLC dan starter bintang-segitiga</h2>
+      <p>Timer Omron adalah timer <b>on-delay</b> yang menghitung mundur: saat masukannya ON, present value (PV) turun dari set value (SV); saat PV mencapai 0, <b>completion flag</b> (mis. <code>T000</code>) ON. Saat masukan OFF, timer di-reset.</p>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Instruksi</th><th>Satuan</th><th>Contoh</th></tr></thead><tbody>
+        <tr><td><code>TIM</code></td><td>0,1 s</td><td><code>TIM 000 #50</code> = 5,0 s</td></tr><tr><td><code>TIMH(015)</code></td><td>0,01 s</td><td><code>TIMH 002 #50</code> = 0,50 s</td></tr></tbody></table></div>
+      <p>SV konstanta ditulis dengan <code>#</code> dalam format <b>BCD</b> pada setelan bawaan: setiap 4 bit menyimpan satu digit desimal. <code>#50</code> berarti digit 5 dan 0, bukan bilangan heksa 0x50 = 80.</p>
+      <div class="widget"><div class="widget-title">Kalkulator TIM dan BCD <span class="tag mask">interaktif</span></div><div data-w="tim"></div></div>
+      <figure class="fig fig-sm"><img src="assets/img/image5.png" alt="Ladder bintang-segitiga: K1 utama, TIM 000 #50, K2 bintang lepas saat T000, TIM 001 #3 jeda, K3 segitiga" loading="lazy" width="580" height="810"><figcaption>Gambar 4.2 Ladder starter bintang-segitiga dengan TIM 000 (waktu bintang) dan TIM 001 (jeda transisi)</figcaption></figure>
+      <div class="widget"><div class="widget-title">Bintang-segitiga di PLC <span class="tag mask">coba</span></div><p class="small muted">Diagram waktu lengkap bisa dilihat di <a href="#lab">Lab PLC</a> (stasiun panel motor, program bintang-segitiga).</p><div data-w="mini-plc-yd"></div></div>
+      <p class="small"><b>Timer PLC vs timer elektromekanik:</b> timer PLC lebih teliti dan mudah diubah, tetapi bila PLC gagal, semua timer ikut gagal. Interlock K2-K3 tetap dipasang pada wiring.</p>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p15">
+      <h2><span class="num">P15</span>Counter, pembanding, dan konveyor berhitung</h2>
+      <p><code>CNT</code> Omron menghitung <b>turun</b>. Ia punya dua masukan: <b>masukan hitung</b> (setiap tepi naik mengurangi PV satu) dan <b>masukan reset</b> (mengembalikan PV ke SV). Saat PV = 0, flag <code>C000</code> ON. Di mnemonik, masukan hitung ditulis dulu, lalu masukan reset:</p>
+      <pre class="code-pre">LD      0.05      ; masukan hitung: sensor produk B1
+LD      0.06      ; masukan reset: tombol RESET
+CNT     000 #10   ; hitung turun 10 -> 0</pre>
+      <ul class="list">
+        <li><code>CNTR(012)</code> (pengayaan) menghitung naik dan turun.</li>
+        <li><b>Pembanding</b> sebagai kontak: <code>LD &lt;= C000 #0002</code> ON saat sisa hitungan 2 atau kurang. <code>CMP(020)</code> mengisi flag P_GT, P_EQ, P_LT.</li>
+        <li><code>MOV(021) #0010 D0</code> menyalin nilai, misalnya setpoint, ke word D.</li>
+      </ul>
+      <div class="widget"><div class="widget-title">Konveyor berhitung <span class="tag mask">coba</span></div><p class="small muted">START, lalu taruh produk (atau centang otomatis). Centang "sensor bouncing" dan bandingkan hitungan PLC dengan hitungan manual.</p><div data-w="mini-plc-conv"></div></div>
+      <div class="callout"><b class="t">Hitungan ganda</b><p>CNT sudah bereaksi pada tepi naik, jadi menambah DIFU tidak menyelesaikan hitungan ganda. Penyebabnya sinyal sensor yang memang ON-OFF dua kali (bouncing, benda bergoyang, atau dua permukaan benda terbaca). Solusinya: perbaiki posisi/jarak sensor, perbesar input time constant di PLC Settings, atau pakai sensor yang lebih sesuai.</p></div>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p16">
+      <h2><span class="num">P16</span>Integrasi kendali elektromekanik dan troubleshooting program</h2>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Alat bantu</th><th>Kapan dipakai</th></tr></thead><tbody>
+        <tr><td>LED status dan pesan error</td><td>Pertama kali: ERR/ALM menyala? PLC di mode apa?</td></tr>
+        <tr><td>Monitoring online</td><td>Melihat kontak mana yang memutus aliran daya di rung</td></tr>
+        <tr><td>Cross-reference / pencarian alamat</td><td>Menemukan semua rung yang menulis dan membaca alamat yang sama (koil ganda!)</td></tr>
+        <tr><td>Backtracking</td><td>Mulai dari output yang salah, telusuri mundur ke input penyebabnya</td></tr>
+        <tr><td>Force set/reset</td><td>Menguji output atau memisahkan masalah wiring dari program; hanya atas izin guru, lalu dibatalkan</td></tr>
+        <tr><td>Version log</td><td>Mencatat perubahan satu per satu agar bisa kembali ke versi yang benar</td></tr></tbody></table></div>
+      <h3>Proyek mini</h3>
+      <p>Konveyor putar kanan-kiri dengan penghitung produk dan lampu status: susun I/O list, tulis program berkomentar, uji kasus normal-batas-gagal, cari dua gangguan yang disisipkan guru, lalu demonstrasikan. Kerjakan di <a href="#lab">Lab PLC</a>, lalu latih kemampuan mencari kesalahan di <a href="#s-debug" data-tab-for="s-debug">Asesmen → Perbaiki program</a>.</p>
+      <div class="meet-box"></div>
+    </section>
+    <div data-modfoot="4"></div>
+    <nav class="pager"><a href="#m3"><small>Sebelumnya</small>Modul 3 · Wiring &amp; commissioning</a><a class="next" href="#m5"><small>Berikutnya</small>Modul 5 · Pneumatik &amp; hidrolik</a></nav>
+  </div>
+</section>
+
+<!-- ============================== MODUL 5 ============================== -->
+<section class="view" id="v-m5" data-title="Modul 5 · Pneumatik & hidrolik" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow"><span class="rbar b5"></span>Modul 5 · Pertemuan 17-22 · Semester genap</div>
+      <h1>Kendali PLC dengan komponen elektropneumatik dan hidrolik</h1>
+      <p class="lead">PLC menentukan kapan katup berpindah, tetapi keselamatan ditentukan rancangan: sensor posisi sebagai bukti gerak, posisi aman katup saat daya hilang, tekanan terbatas, dan E-stop yang benar-benar menghentikan bahaya.</p>
+    </div>
+    <div class="b5" data-modhead="5"></div>
+
+    <section class="block" id="p17">
+      <h2><span class="num">P17</span>Komponen dan simbol elektropneumatik serta K3 udara bertekanan</h2>
+      <p>Alur sistem pneumatik: <b>kompresor</b> → <b>unit pelayanan FRL</b> (filter, regulator, lubricator) → <b>katup kendali arah</b> → <b>katup pengatur aliran</b> → <b>silinder</b>. Sensor posisi memberi tahu PLC di mana piston berada.</p>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Komponen</th><th>Keterangan</th></tr></thead><tbody>
+        <tr><td>Katup 3/2</td><td>3 lubang, 2 posisi: untuk silinder kerja tunggal.</td></tr>
+        <tr><td>Katup 5/2 solenoid tunggal</td><td>Untuk silinder kerja ganda. Solenoid ON → maju; OFF → <b>pegas</b> mengembalikan katup, silinder mundur.</td></tr>
+        <tr><td>Katup 5/2 solenoid ganda</td><td>Y1 → maju, Y2 → mundur. Tanpa sinyal, katup <b>tetap di posisi terakhir</b> (memori).</td></tr>
+        <tr><td>Katup pengatur aliran satu arah</td><td>Mengatur kecepatan silinder (biasanya membatasi udara buang).</td></tr>
+        <tr><td>Silinder kerja tunggal / ganda</td><td>Tunggal: maju dengan udara, kembali dengan pegas. Ganda: maju dan mundur dengan udara.</td></tr>
+        <tr><td>Sensor reed/magnetik, limit switch</td><td>Mendeteksi posisi piston (belakang/depan).</td></tr></tbody></table></div>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Penamaan ISO 1219</th><th>Arti</th></tr></thead><tbody>
+        <tr><td><code>1A</code></td><td>Aktuator (silinder) rangkaian 1</td></tr><tr><td><code>1V1</code></td><td>Katup rangkaian 1</td></tr><tr><td><code>1B1</code> / <code>1B2</code></td><td>Sensor posisi belakang / depan silinder 1</td></tr><tr><td><code>1Y1</code> / <code>1Y2</code></td><td>Solenoid maju / mundur katup rangkaian 1</td></tr><tr><td><code>0Z</code></td><td>Unit pelayanan (FRL) dan sumber</td></tr></tbody></table></div>
+      <div class="widget"><div class="widget-title">Katup tunggal vs ganda saat listrik padam <span class="tag mask">coba</span></div><p class="small muted">START = sinyal Y1, RESET = sinyal Y2. Majukan silinder, lalu tekan E-STOP (memutus daya solenoid). Ulangi setelah mencentang "katup solenoid tunggal".</p><div data-w="mini-pneu-valve"></div></div>
+      <div class="callout warn"><b class="t">K3 udara bertekanan</b><p>Kacamata pengaman wajib. Tekanan kerja sesuai trainer (umumnya 4-6 bar). Selang dipasang sebelum katup dibuka; tekanan dibuang sebelum selang dilepas. Jangan arahkan udara ke tubuh. Area gerak silinder bebas dari tangan.</p></div>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p18">
+      <h2><span class="num">P18</span>Kendali PLC untuk satu silinder dengan sensor posisi</h2>
+      <p>Solenoid katup 24 VDC dihubungkan ke output PLC. Pada output transistor, beban induktif (kumparan solenoid) perlu <b>dioda flyback</b> atau proteksi bawaan katup agar tegangan induksi saat dimatikan tidak merusak output. Sensor reed dihubungkan ke input seperti sensor lain (perhatikan NPN/PNP).</p>
+      <p>Logika gerak berdasarkan sensor ujung: <b>1B1</b> (belakang) dan <b>1B2</b> (depan). Siklus tunggal: START saat di posisi awal → maju → 1B2 ON → mundur → berhenti di 1B1. Siklus kontinu: selector KONTINU ON mengulang selama silinder kembali ke posisi awal.</p>
+      <div class="widget"><div class="widget-title">Satu silinder dengan sensor <span class="tag mask">coba</span></div><p class="small muted">Coba juga gangguan "1B2 bergeser": silinder diam di depan menunggu sensor. Program ini juga mengunci setelah E-stop sampai RESET ditekan.</p><div data-w="mini-pneu-one"></div></div>
+      <p><b>Mengapa sensor, bukan timer?</b> Sensor membuktikan gerak sudah selesai. Timer hanya menebak; bila tekanan turun atau benda macet, timer tetap melanjutkan langkah walaupun silinder belum sampai, dan langkah berikutnya bisa merusak benda atau mesin.</p>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p19">
+      <h2><span class="num">P19</span>Diagram langkah dan program sekuensial dua silinder (A+ B+ B- A-)</h2>
+      <p>Proses penjepit-penekan: silinder A menjepit (A+), B menekan (B+), B kembali (B-), A melepas (A-). Notasinya <b>A+ B+ B- A-</b>. Diagram langkah-perpindahan menggambarkan posisi tiap silinder di setiap langkah, dan sensor yang menjadi syarat pindah langkah.</p>
+      <figure class="fig"><img src="assets/img/image6.png" alt="Diagram langkah-perpindahan sekuens A+ B+ B- A- dengan sensor 1B1 dan START, 1B2, 2B2, 2B1" loading="lazy" width="570" height="260"><figcaption>Gambar 5.1 Diagram langkah-perpindahan sekuens A+ B+ B- A- (penjepit-penekan) beserta sensor syarat transisi</figcaption></figure>
+      <h3>Metode step bit</h3>
+      <p>Setiap langkah punya satu bit memori (<code>W0.00</code>-<code>W0.04</code>). Hanya satu langkah aktif pada satu waktu. Transisi ditulis: <i>langkah sekarang · sensor</i> → SET langkah berikutnya, RSET langkah sekarang. Keluaran solenoid diambil dari bit langkah.</p>
+      <div class="tbl-wrap"><table class="tbl small mono"><thead><tr><th>Syarat</th><th>Aksi</th></tr></thead><tbody>
+        <tr><td>P_First_Cycle / E-stop aktif</td><td>RSET W0.00..W0.05 (semua langkah OFF)</td></tr>
+        <tr><td>RESET · 0.03 · tidak ada langkah aktif</td><td>SET W0.05 (homing: A- dan B-)</td></tr>
+        <tr><td>W0.05 · 0.04 · 0.06</td><td>SET W0.00, RSET W0.05 (siap di posisi awal)</td></tr>
+        <tr><td>W0.00 · START · 0.04 · 0.06</td><td>SET W0.01, RSET W0.00 (A+)</td></tr>
+        <tr><td>W0.01 · 0.05</td><td>SET W0.02, RSET W0.01 (B+)</td></tr>
+        <tr><td>W0.02 · 0.07</td><td>SET W0.03, RSET W0.02 (B-)</td></tr>
+        <tr><td>W0.03 · 0.06</td><td>SET W0.04, RSET W0.03 (A-)</td></tr>
+        <tr><td>W0.04 · 0.04</td><td>SET W0.00, RSET W0.04 (selesai)</td></tr></tbody></table></div>
+      <p class="small">Keluaran: W0.01 → 100.00 (1Y1, A+) · W0.02 → 100.02 (2Y1, B+) · W0.03 atau homing → 100.03 (2Y2, B-) · W0.04 atau homing → 100.01 (1Y2, A-). Input: 0.00 START, 0.02 RESET, 0.03 status E-stop (NC), 0.04/0.05 sensor A, 0.06/0.07 sensor B. E-stop juga memutus daya solenoid secara hard-wired.</p>
+      <div class="widget"><div class="widget-title">Sekuens A+ B+ B- A- <span class="tag mask">coba</span></div><p class="small muted">Tekan RESET dulu (homing, lalu siap), kemudian START. Coba E-stop di tengah sekuens, lepas, lalu RESET.</p><div data-w="mini-pneu-seq"></div></div>
+      <p>Buat diagram dan program untuk sekuens lain di <a href="#langkah">Diagram langkah</a>. Alternatif metode step bit adalah register geser <code>SFT(010)</code>.</p>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p20">
+      <h2><span class="num">P20</span>Komponen elektrohidrolik dan K3 sistem bertekanan tinggi</h2>
+      <p><b>Hukum Pascal</b>: tekanan pada fluida tertutup diteruskan sama besar ke segala arah. Gaya silinder: <b>F = p × A</b>, dengan p dalam pascal (1 bar = 100.000 Pa) dan A luas piston dalam m². Hidrolik bekerja pada puluhan sampai ratusan bar, jauh di atas pneumatik (4-6 bar), sehingga gayanya besar dan geraknya kaku karena oli hampir tidak bisa dimampatkan.</p>
+      <div class="widget"><div class="widget-title">Kalkulator gaya silinder <span class="tag mask">F = p × A</span></div><div data-w="force"></div></div>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Komponen</th><th>Fungsi</th></tr></thead><tbody>
+        <tr><td>Tangki, pompa + motor penggerak</td><td>Menyimpan oli dan menghasilkan aliran</td></tr>
+        <tr><td>Relief valve</td><td>Membatasi tekanan maksimum sistem (setelan dikunci guru)</td></tr>
+        <tr><td>Katup 4/3 solenoid</td><td>Y1 maju, Y2 mundur, tanpa sinyal kembali ke posisi tengah</td></tr>
+        <tr><td>Check valve, flow control</td><td>Satu arah; mengatur kecepatan</td></tr>
+        <tr><td>Silinder, motor hidrolik</td><td>Aktuator lurus dan putar</td></tr>
+        <tr><td>Manometer, pressure switch</td><td>Menampilkan tekanan; memberi sinyal ke PLC saat tekanan tercapai</td></tr></tbody></table></div>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Posisi tengah katup 4/3</th><th>Perilaku</th></tr></thead><tbody>
+        <tr><td>Tertutup (closed center)</td><td>Semua lubang tertutup: silinder tertahan di tempat</td></tr>
+        <tr><td>Tandem</td><td>P ke T terbuka (pompa tidak terbebani), A dan B tertutup: silinder tertahan</td></tr>
+        <tr><td>Float</td><td>A dan B ke tangki: silinder bisa didorong bebas</td></tr></tbody></table></div>
+      <div class="compare">
+        <div class="card"><h3>Pneumatik</h3><p class="small">Bersih, cepat, murah, gaya kecil-menengah, mudah dimampatkan (gerak kurang presisi).</p></div>
+        <div class="card"><h3>Hidrolik</h3><p class="small">Gaya sangat besar, gerak kaku dan bisa menahan beban, tetapi oli bisa bocor dan tumpah, butuh perawatan.</p></div>
+      </div>
+      <div class="callout warn"><b class="t">Prosedur aman</b><p><b>Start-up:</b> periksa level oli, selang, dan kopling → area gerak bebas → pompa ON dengan katup di tengah → periksa manometer → uji gerak pada tekanan rendah. <b>Shutdown:</b> silinder ke posisi aman → pompa OFF → buang tekanan → baru lepas sambungan. Sambungan tidak pernah dilepas saat bertekanan; tumpahan oli segera dibersihkan.</p></div>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p21">
+      <h2><span class="num">P21</span>Kendali PLC untuk silinder elektrohidrolik dan kendali dua tangan</h2>
+      <p>Siklus press: pompa ON → <b>kendali dua tangan</b> → silinder maju sampai sensor depan atau pressure switch → tahan 2 s → mundur ke posisi awal → pompa siaga. Y1 dan Y2 diinterlock agar tidak pernah aktif bersamaan.</p>
+      <p><b>Kendali dua tangan</b> memaksa kedua tangan operator berada di tombol selama gerak berbahaya: kedua tombol harus ditekan hampir bersamaan (umumnya dalam 0,5 s), dan gerak berhenti bila salah satu dilepas. Untuk memulai lagi, kedua tombol harus dilepas dulu.</p>
+      <div class="widget"><div class="widget-title">Press elektrohidrolik <span class="tag mask">coba</span></div><p class="small muted">Nyalakan POMPA. Tekan S1 dan S2 hampir bersamaan dengan dua jari dan tahan. Dengan mouse, centang "tombol jadi tahan" lalu klik S1 dan S2 dengan cepat. Coba juga satu tangan saja, atau tangan kedua terlambat.</p><div data-w="mini-press"></div></div>
+      <div class="callout warn"><b class="t">Batas latihan</b><p>Kendali dua tangan di PLC biasa ini untuk belajar logika. Mesin press sungguhan wajib memakai modul atau relay keselamatan bersertifikat (ISO 13851) dan dinilai oleh personel kompeten.</p></div>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p22">
+      <h2><span class="num">P22</span>Proyek pick-and-place elektropneumatik dan troubleshooting fluida-listrik</h2>
+      <p>Tiga gerak: geser <b>A</b>, naik-turun <b>B</b>, penjepit <b>C</b>. Sekuens delapan langkah: <b>B+ C+ B- A+ B+ C- B- A-</b> (turun, jepit, naik, geser, turun, lepas, naik, kembali).</p>
+      <div class="widget"><div class="widget-title">Pick-and-place <span class="tag mask">coba</span></div><p class="small muted">RESET, lalu START. Pasang gangguan "selang B tertukar" atau "tekanan rendah", lalu diagnosis dari gejalanya.</p><div data-w="mini-pneu-pick"></div></div>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Gejala</th><th>Kemungkinan fluida</th><th>Kemungkinan listrik/program</th></tr></thead><tbody>
+        <tr><td>Silinder tidak bergerak</td><td>Tekanan rendah, katup macet, selang tertekuk</td><td>Output tidak ON, solenoid putus, syarat transisi belum terpenuhi</td></tr>
+        <tr><td>Silinder bergerak berlawanan</td><td>Selang A/B tertukar</td><td>Alamat Y1/Y2 tertukar</td></tr>
+        <tr><td>Sekuens berhenti di tengah</td><td>Silinder tidak sampai ujung (beban, tekanan)</td><td>Sensor bergeser atau rusak, alamat sensor salah</td></tr>
+        <tr><td>Gerak tersendat, berdesis</td><td>Kebocoran, flow control terlalu tertutup</td><td>-</td></tr></tbody></table></div>
+      <p><b>Membedakan solenoid dan program:</b> bila bit output ON dan LED katup menyala tetapi katup tidak berpindah (padahal manual override bisa), masalah di katup atau kumparan. Bila output tidak ON padahal syarat terpenuhi, periksa program dan sensor dengan monitoring.</p>
+      <div class="meet-box"></div>
+    </section>
+    <div data-modfoot="5"></div>
+    <nav class="pager"><a href="#m4"><small>Sebelumnya</small>Modul 4 · Pemrograman PLC</a><a class="next" href="#m6"><small>Berikutnya</small>Modul 6 · HMI</a></nav>
+  </div>
+</section>
+
+<!-- ============================== MODUL 6 ============================== -->
+<section class="view" id="v-m6" data-title="Modul 6 · HMI" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow"><span class="rbar b6"></span>Modul 6 · Pertemuan 23-25 · Semester genap</div>
+      <h1>Human-machine interface (HMI) pada rangkaian kendali PLC</h1>
+      <p class="lead">HMI adalah jendela operator ke mesin: layar yang baik membuat keadaan mesin mudah dipahami dan tindakan yang benar mudah dilakukan, tetapi fungsi keselamatan kritis tetap berada pada perangkat keras.</p>
+    </div>
+    <div class="b6" data-modhead="6"></div>
+
+    <section class="block" id="p23">
+      <h2><span class="num">P23</span>Konsep HMI, prinsip desain layar, dan koneksi HMI-PLC</h2>
+      <p>HMI dipakai untuk <b>operasi</b> (tombol), <b>monitoring</b> (status, nilai), <b>alarm</b>, dan <b>data</b> (setpoint, hitungan). HMI tidak mengendalikan mesin; ia hanya membaca dan menulis bit atau word di PLC. Program PLC yang memutuskan.</p>
+      <div class="grid">
+        <div class="card"><h3>Hierarki informasi</h3><p class="small">Status utama besar di atas, detail di layar lain.</p></div>
+        <div class="card"><h3>Warna bermakna</h3><p class="small">Warna netral untuk kondisi normal; merah/kuning hanya untuk alarm dan peringatan.</p></div>
+        <div class="card"><h3>Konsisten</h3><p class="small">Posisi tombol navigasi dan arti warna sama di semua layar.</p></div>
+        <div class="card"><h3>Mudah disentuh</h3><p class="small">Tombol cukup besar dan berjarak, label jelas.</p></div>
+      </div>
+      <figure class="fig"><img src="assets/img/image7.png" alt="Rancangan layar utama HMI stasiun konveyor: START W10.00, STOP W10.01, lampu MOTOR RUN 100.00, TOR TRIP W20.00, E-STOP W20.01, setpoint D100, sisa batch C000" loading="lazy" width="550" height="350"><figcaption>Gambar 6.1 Contoh rancangan layar utama HMI stasiun konveyor beserta alamat PLC setiap objek</figcaption></figure>
+      <h3>Koneksi di NB-Designer</h3>
+      <ol class="list small">
+        <li>Buat project, pilih model HMI NB sesuai perangkat.</li>
+        <li>Atur port dan protokol ke PLC Omron: serial <b>Host Link</b> (RS-232C) atau Ethernet sesuai perangkat; samakan baud rate dan nomor stasiun dengan PLC Settings.</li>
+        <li>Susun <b>daftar tag</b>: nama, alamat PLC, tipe data, baca/tulis.</li>
+        <li>Uji simulasi offline, lalu online dengan PLC trainer.</li>
+      </ol>
+      <div class="callout warn"><b class="t">HMI bukan E-stop</b><p>HMI, kabel komunikasi, atau programnya bisa macet. E-stop tetap tombol fisik hard-wired; HMI hanya menampilkan statusnya. Kabel komunikasi dipasang saat perangkat power-off.</p></div>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p24">
+      <h2><span class="num">P24</span>Objek kontrol-monitor, setpoint, dan navigasi layar</h2>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Objek</th><th>Perilaku</th></tr></thead><tbody>
+        <tr><td>Bit switch momentary</td><td>ON hanya selama ditekan (seperti tombol tekan)</td></tr>
+        <tr><td>Bit switch set / reset</td><td>Menulis 1 / 0 sekali tekan</td></tr>
+        <tr><td>Bit switch alternate</td><td>Bergantian ON/OFF setiap ditekan</td></tr>
+        <tr><td>Bit lamp</td><td>Menampilkan status bit</td></tr>
+        <tr><td>Numeric display / input</td><td>Menampilkan / menulis word dengan format (BCD/biner), jumlah digit, titik desimal, batas min-maks</td></tr>
+        <tr><td>Screen switch</td><td>Berpindah layar</td></tr></tbody></table></div>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Nama tag</th><th>Alamat</th><th>Objek</th><th>Akses</th><th>Keterangan</th></tr></thead><tbody>
+        <tr><td>START_HMI</td><td>W10.00</td><td>Bit switch momentary</td><td>Tulis</td><td>paralel dengan tombol START fisik</td></tr>
+        <tr><td>STOP_HMI</td><td>W10.01</td><td>Bit switch momentary</td><td>Tulis</td><td>kontak NC seri pada rung K1</td></tr>
+        <tr><td>K1_RUN</td><td>100.00</td><td>Bit lamp</td><td>Baca</td><td>status motor konveyor</td></tr>
+        <tr><td>ALM_TOR</td><td>W20.00</td><td>Bit lamp/alarm</td><td>Baca</td><td>aktif saat TOR (0.02) terbuka</td></tr>
+        <tr><td>ALM_ESTOP</td><td>W20.01</td><td>Bit lamp/alarm</td><td>Baca</td><td>dari kontak bantu E-stop</td></tr>
+        <tr><td>T_HOLD_PV</td><td>T000</td><td>Numeric display</td><td>Baca</td><td>BCD 4 digit, 1 desimal</td></tr>
+        <tr><td>T_HOLD_SP</td><td>D100</td><td>Numeric input</td><td>Tulis</td><td>BCD, batas 10-99 (1,0-9,9 s)</td></tr>
+        <tr><td>BATCH_PV</td><td>C000</td><td>Numeric display</td><td>Baca</td><td>sisa hitungan batch</td></tr></tbody></table></div>
+      <pre class="code-pre">LD      0.00      ; START fisik
+OR      W10.00    ; START dari HMI (momentary)
+OR      W1.00     ; pengunci
+AND     0.01      ; STOP fisik (NC lapangan)
+AND NOT W10.01    ; STOP dari HMI, berprioritas
+AND     0.02      ; TOR (NC lapangan)
+OUT     W1.00     ; konveyor diizinkan jalan
+LD      W0.10     ; langkah tahan aktif (produk tiba)
+TIM     000 D100  ; set value dari HMI (BCD, satuan 0,1 s)</pre>
+      <p><b>Format data harus cocok.</b> TIM membaca SV sebagai BCD. Bila numeric input diatur BIN, angka 50 ditulis sebagai 0032 heksa, lalu TIM membacanya sebagai 3,2 s. Batas min-maks mencegah operator memasukkan nilai berbahaya. Coba sendiri di <a href="#hmi">Lab HMI</a>: ubah format T_HOLD_SP ke BIN lalu masukkan 5,0.</p>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p25">
+      <h2><span class="num">P25</span>Alarm, level akses, dan uji integrasi HMI-PLC</h2>
+      <p>Alarm berbasis bit: PLC menyalakan bit (mis. W20.00 saat TOR trip), HMI menampilkan pesan, mencatat riwayat, dan operator menekan <b>ACK</b>. Pesan alarm yang baik menjawab tiga hal: <b>apa</b> yang terjadi, <b>di mana</b>, dan <b>tindakan</b> yang harus dilakukan.</p>
+      <div class="compare"><div class="card"><h3>Kurang baik</h3><p class="small mono">ERR 07</p></div><div class="card"><h3>Baik</h3><p class="small">TOR motor konveyor 1 trip. Matikan konveyor, periksa beban yang macet, reset TOR di panel, lalu tekan START.</p></div></div>
+      <ul class="list">
+        <li><b>Timeout/watchdog</b> di program mendeteksi macet: misalnya konveyor jalan 15 s tanpa produk di sensor.</li>
+        <li><b>Level akses</b>: layar setting dilindungi sandi agar hanya teknisi yang mengubah setpoint. Sandi tidak ditulis di project yang dibagikan.</li>
+        <li><b>Uji integrasi</b>: checklist setiap objek (alamat, format, respons), alarm disimulasikan dengan gangguan yang aman, bukan memutus daya utama.</li>
+      </ul>
+      <p>Lakukan uji integrasi di <a href="#hmi">Lab HMI</a>; checklist di sana tercentang otomatis saat setiap fungsi berhasil diuji.</p>
+      <div class="meet-box"></div>
+    </section>
+    <div data-modfoot="6"></div>
+    <nav class="pager"><a href="#m5"><small>Sebelumnya</small>Modul 5 · Pneumatik &amp; hidrolik</a><a class="next" href="#m7"><small>Berikutnya</small>Modul 7 · Proses produksi</a></nav>
+  </div>
+</section>
+
+<!-- ============================== MODUL 7 ============================== -->
+<section class="view" id="v-m7" data-title="Modul 7 · Proses produksi" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow"><span class="rbar b7"></span>Modul 7 · Pertemuan 26-29 · Semester genap</div>
+      <h1>PLC pada proses produksi</h1>
+      <p class="lead">Mesin produksi harus aman, dapat dioperasikan, dan dapat diperbaiki: struktur program yang jelas (mode, sekuens, alarm) dan dokumentasi yang baik sama pentingnya dengan fungsi gerak.</p>
+    </div>
+    <div class="b7" data-modhead="7"></div>
+
+    <section class="block" id="p26">
+      <h2><span class="num">P26</span>Analisis proses produksi, deskripsi kendali, dan GRAFCET</h2>
+      <p>Analisis proses menjawab: apa tujuannya, bagaimana urutan kerjanya, sensor dan aktuator apa yang dipakai, bagaimana kondisi awal, dan kondisi apa yang harus aman. Hasilnya ditulis sebagai <b>deskripsi kendali</b> (narasi + tabel) lalu digambar sebagai <b>GRAFCET</b>.</p>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Sensor</th><th>Mendeteksi</th><th>Contoh di stasiun sortir</th></tr></thead><tbody>
+        <tr><td>Induktif</td><td>Logam saja</td><td>S2: membedakan logam dan nonlogam</td></tr>
+        <tr><td>Kapasitif</td><td>Hampir semua benda (termasuk plastik, cairan)</td><td>Keberadaan benda nonlogam</td></tr>
+        <tr><td>Fotoelektrik</td><td>Benda yang memotong/memantulkan cahaya</td><td>S0 benda masuk, S1 benda di posisi sortir</td></tr></tbody></table></div>
+      <h3>Elemen GRAFCET (IEC 60848)</h3>
+      <ul class="list"><li><b>Langkah</b> (kotak bernomor; langkah awal kotak ganda) dan <b>aksi</b> di sampingnya.</li><li><b>Transisi</b> (garis pendek melintang) dengan syarat pindah langkah.</li><li><b>Percabangan alternatif</b>: hanya satu cabang yang dijalankan, sesuai syarat.</li></ul>
+      <figure class="fig fig-sm"><img src="assets/img/image8.png" alt="GRAFCET stasiun sortir logam/nonlogam dengan langkah 0 sampai 5 dan percabangan alternatif" loading="lazy" width="550" height="650"><figcaption>Gambar 7.1 GRAFCET stasiun sortir logam/nonlogam dengan percabangan alternatif</figcaption></figure>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Alamat</th><th>Simbol</th><th>Perangkat</th><th>Alamat</th><th>Simbol</th><th>Perangkat</th></tr></thead><tbody>
+        <tr><td>0.00</td><td>START</td><td>tombol</td><td>0.07 / 0.08</td><td>A0 / A1</td><td>sensor silinder A belakang/depan</td></tr>
+        <tr><td>0.01</td><td>STOP</td><td>STOP siklus (NC)</td><td>0.09 / 0.10</td><td>B0 / B1</td><td>sensor silinder B belakang/depan</td></tr>
+        <tr><td>0.02</td><td>RESET</td><td>tombol</td><td>0.11</td><td>S0</td><td>benda masuk (untuk watchdog)</td></tr>
+        <tr><td>0.03</td><td>ESTOP</td><td>status E-stop (NC)</td><td>1.00-1.02</td><td>JOGM/A/B</td><td>jog manual</td></tr>
+        <tr><td>0.04</td><td>AUTO</td><td>selector AUTO/MANUAL</td><td>100.00</td><td>M1</td><td>motor konveyor</td></tr>
+        <tr><td>0.05</td><td>S1</td><td>benda di posisi sortir</td><td>100.01 / 100.02</td><td>Y1 / Y2</td><td>silinder A / B maju (katup tunggal)</td></tr>
+        <tr><td>0.06</td><td>S2</td><td>sensor induktif</td><td>100.03 / 100.04</td><td>H1 / H2</td><td>READY / ALARM</td></tr></tbody></table></div>
+      <p class="small muted">Tabel I/O ini dipakai simulator di web. Sesuaikan dengan model atau trainer sortir di sekolah.</p>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p27">
+      <h2><span class="num">P27</span>Mode operasi auto/manual, E-stop, reset, dan homing</h2>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Mode / kondisi</th><th>Perilaku sistem</th><th>Syarat</th></tr></thead><tbody>
+        <tr><td>MANUAL</td><td>Jog tiap aktuator dengan tombol; interlock tetap aktif</td><td>Selector MANUAL, tidak ada alarm</td></tr>
+        <tr><td>AUTO</td><td>Menjalankan GRAFCET berulang</td><td>Selector AUTO, posisi awal, tombol START</td></tr>
+        <tr><td>STOP siklus</td><td>Menyelesaikan siklus berjalan, lalu kembali ke langkah 0</td><td>Tombol STOP ditekan</td></tr>
+        <tr><td>E-stop</td><td>Semua langkah di-reset, keluaran OFF, daya aktuator diputus hard-wired</td><td>E-stop ditekan</td></tr>
+        <tr><td>RESET + homing</td><td>Mengembalikan aktuator ke posisi awal tanpa menjalankan siklus</td><td>E-stop sudah dilepas, tombol RESET</td></tr></tbody></table></div>
+      <ul class="list">
+        <li><b>Restart terkendali</b>: melepas E-stop atau memulihkan daya tidak boleh menjalankan mesin. Selalu RESET, lalu START.</li>
+        <li><b>Larangan start</b> bila aktuator belum di posisi awal.</li>
+        <li>Pada stasiun ini katup silinder bertipe solenoid tunggal: saat output OFF, silinder mundur sendiri, sehingga homing cukup menunggu A0 dan B0.</li>
+        <li>Program besar dibagi per <b>section</b> di CX-Programmer: mode, sekuens, keluaran, alarm.</li>
+      </ul>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p28">
+      <h2><span class="num">P28</span>Implementasi sekuens produksi, counter, dan pemantauan HMI</h2>
+      <p>GRAFCET diterjemahkan ke ladder dengan pola yang sama seperti metode step bit: setiap langkah satu bit W, setiap transisi satu rung "langkah · syarat → SET berikutnya, RSET sekarang", dan keluaran diambil dari bit langkah. Hitungan logam dan nonlogam memakai <code>@++B(594) D0</code> dan <code>D1</code> (naik satu dalam BCD, hanya pada tepi naik kondisi).</p>
+      <div class="widget"><div class="widget-title">Stasiun sortir dengan GRAFCET hidup <span class="tag mask">coba</span></div><div data-w="grafcet"></div></div>
+      <p><b>Watchdog</b>: timer yang berjalan selama sebuah langkah aktif. Bila transisi tidak terjadi dalam batas waktu (silinder tidak sampai depan dalam 3 s, benda tidak sampai S1 dalam 8 s), alarm menyala dan mesin berhenti. Program lengkapnya bisa dibuka dan diuji di <a href="#lab">Lab PLC</a> → stasiun sortir.</p>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p29">
+      <h2><span class="num">P29</span>Validasi, manual operasi, dan demonstrasi sistem produksi</h2>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Uji penerimaan</th><th>Contoh kriteria</th></tr></thead><tbody>
+        <tr><td>Fungsi</td><td>20 benda campuran tersortir benar; hitungan D0/D1 sama dengan hitungan manual</td></tr>
+        <tr><td>Keselamatan</td><td>E-stop di tengah siklus menghentikan semua gerak; tidak jalan sendiri setelah dilepas; RESET melakukan homing</td></tr>
+        <tr><td>Kinerja</td><td>Waktu siklus per benda (s), jumlah benda per menit, ketepatan sortir (%)</td></tr>
+        <tr><td>Alarm</td><td>Benda macet dan sensor gagal memunculkan alarm yang jelas</td></tr>
+        <tr><td>Dokumentasi</td><td>Program versi akhir berkomentar, GRAFCET, I/O list, manual operasi</td></tr></tbody></table></div>
+      <h3>Manual operasi satu halaman</h3>
+      <ol class="list small"><li><b>Start-up</b>: periksa area, udara bertekanan, lepas E-stop, selector AUTO, RESET, START.</li><li><b>Operasi normal</b>: apa yang dilihat operator (lampu, HMI) dan cara menghentikan di akhir siklus.</li><li><b>Alarm dan tindakan</b>: tabel pesan alarm → tindakan.</li><li><b>Shutdown</b>: STOP siklus, buang tekanan, matikan dan kunci daya.</li></ol>
+      <p>Catat data uji di <a href="#log">Log kerja → Test log</a>.</p>
+      <div class="meet-box"></div>
+    </section>
+    <div data-modfoot="7"></div>
+    <nav class="pager"><a href="#m6"><small>Sebelumnya</small>Modul 6 · HMI</a><a class="next" href="#m8"><small>Berikutnya</small>Modul 8 · PLC dalam jaringan</a></nav>
+  </div>
+</section>
+
+<!-- ============================== MODUL 8 ============================== -->
+<section class="view" id="v-m8" data-title="Modul 8 · PLC dalam jaringan" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow"><span class="rbar b8"></span>Modul 8 · Pertemuan 30-32 · Semester genap</div>
+      <h1>PLC dalam jaringan</h1>
+      <p class="lead">Jaringan membuat stasiun produksi bekerja sebagai satu sistem; data harus tervalidasi dan setiap stasiun harus tetap aman ketika komunikasi terputus.</p>
+    </div>
+    <div class="b8" data-modhead="8"></div>
+
+    <section class="block" id="p30">
+      <h2><span class="num">P30</span>Arsitektur jaringan industri, protokol, dan pengalamatan</h2>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Lapisan piramida otomasi</th><th>Isi</th></tr></thead><tbody>
+        <tr><td>ERP</td><td>Perencanaan sumber daya perusahaan: pesanan, stok, keuangan</td></tr>
+        <tr><td>MES</td><td>Eksekusi produksi: jadwal, pelacakan, mutu</td></tr>
+        <tr><td>Supervisi</td><td>SCADA/HMI: pemantauan dan perintah operator</td></tr>
+        <tr><td>Kendali</td><td>PLC: logika mesin</td></tr>
+        <tr><td>Lapangan</td><td>Sensor, aktuator, inverter</td></tr></tbody></table></div>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Media / model</th><th>Ciri</th></tr></thead><tbody>
+        <tr><td>RS-232C</td><td>Titik ke titik, jarak pendek (PC/HMI ke PLC)</td></tr>
+        <tr><td>RS-485</td><td>Diferensial, multidrop (beberapa perangkat pada satu pasang kabel), butuh terminator di ujung</td></tr>
+        <tr><td>Ethernet</td><td>Topologi star lewat switch, cepat, memakai alamat IP</td></tr>
+        <tr><td>Master-slave / client-server</td><td>Satu pihak bertanya, pihak lain menjawab</td></tr>
+        <tr><td>Data link siklik</td><td>Area memori dipertukarkan otomatis secara berkala</td></tr></tbody></table></div>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Protokol</th><th>Keterangan</th></tr></thead><tbody>
+        <tr><td>Host Link</td><td>Serial Omron untuk PC/HMI ke PLC</td></tr>
+        <tr><td>Modbus RTU / TCP</td><td>Terbuka, banyak dipakai inverter dan power meter</td></tr>
+        <tr><td>FINS</td><td>Protokol pesan Omron (serial/Ethernet)</td></tr>
+        <tr><td>EtherNet/IP</td><td>Ethernet industri dengan tag data link (CPU yang mendukung)</td></tr></tbody></table></div>
+      <div class="widget"><div class="widget-title">Cek alamat IP satu jaringan <span class="tag mask">interaktif</span></div><div data-w="ip"></div></div>
+      <div class="callout warn"><b class="t">Keamanan dasar jaringan OT</b><p>Jaringan lab terisolasi dari internet dan jaringan sekolah. Alamat mengikuti tabel guru (alamat ganda membuat perangkat putus-sambung). Jangan mengubah setelan perangkat kelompok lain; catat setiap perubahan. Fungsi keselamatan tidak pernah bergantung pada jaringan.</p></div>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p31">
+      <h2><span class="num">P31</span>Konfigurasi komunikasi dan pertukaran data antar-PLC</h2>
+      <p><b>Serial PLC Link</b> Omron mempertukarkan word secara otomatis lewat RS-485 (pada CP1E memakai option board CP1W-CIF11). Satu PLC menjadi <b>polling unit</b> (master), lainnya <b>polled unit</b> dengan nomor unit 0, 1, 2, … Setiap unit mendapat jatah word yang sama (mis. 10 word). Pada CP1E area datanya <b>CIO 200-289</b>: polling unit menulis CIO 200-209, polled unit 0 menulis CIO 210-219, dan semua unit bisa membaca semuanya.</p>
+      <figure class="fig"><img src="assets/img/image9.png" alt="Dua arsitektur jaringan lab: A Serial PLC Link RS-485 antara PLC A dan PLC B; B Ethernet terisolasi dengan PC, HMI, PLC A, PLC B pada 192.168.250.x" loading="lazy" width="740" height="400"><figcaption>Gambar 8.1 Dua alternatif arsitektur jaringan lab: (A) Serial PLC Link RS-485 dan (B) Ethernet terisolasi</figcaption></figure>
+      <p class="small muted">Alamat CIO 200-289 khusus CP1E (tipe N/NA yang mendukung Serial PLC Link). Pada CP1L/CP1H area Serial PLC Link adalah CIO 3100-3189. Periksa manual CPU trainer sebelum memetakan data.</p>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Word / bit</th><th>Arah</th><th>Isi data</th><th>Validasi</th></tr></thead><tbody>
+        <tr><td>CIO 200.00</td><td>A ke B</td><td>Heartbeat stasiun A (berganti tiap 0,5 s)</td><td>B memantau; diam &gt; 3 s = alarm</td></tr>
+        <tr><td>CIO 200.01</td><td>A ke B</td><td>Produk siap dikirim</td><td>B membalas ACK di 210.01</td></tr>
+        <tr><td>CIO 201</td><td>A ke B</td><td>Jumlah produk logam</td><td>Dicocokkan dengan tampilan HMI</td></tr>
+        <tr><td>CIO 210.00</td><td>B ke A</td><td>Heartbeat stasiun B</td><td>A memantau; diam &gt; 3 s = alarm</td></tr>
+        <tr><td>CIO 210.01</td><td>B ke A</td><td>ACK produk diterima</td><td>A mereset 200.01 setelah ACK</td></tr>
+        <tr><td>CIO 211</td><td>B ke A</td><td>Status stasiun B (siap/sibuk/alarm)</td><td>A hanya mengirim saat B siap</td></tr></tbody></table></div>
+      <h3>Heartbeat dan watchdog komunikasi</h3>
+      <pre class="code-pre">Di PLC A:
+LD      P_1s          ; pulsa clock 1 s (0,5 s ON / 0,5 s OFF)
+OUT     200.00        ; heartbeat A -> B
+Di PLC B:
+LD      200.00        ; heartbeat dari A
+TIM     010 #30       ; ON terus > 3,0 s -> komunikasi macet
+LD NOT  200.00
+TIM     011 #30       ; OFF terus > 3,0 s -> komunikasi putus
+LD      T010
+OR      T011
+OUT     W30.00        ; alarm komunikasi -> stasiun B berhenti aman</pre>
+      <p>Selama heartbeat berganti, kedua timer terus di-reset. Bila data berhenti datang (kabel lepas, PLC lain berhenti), heartbeat "membeku" di ON atau OFF dan salah satu timer selesai.</p>
+      <div class="meet-box"></div>
+    </section>
+
+    <section class="block" id="p32">
+      <h2><span class="num">P32</span>Integrasi stasiun berjaringan, diagnosis gangguan, dan demonstrasi akhir</h2>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Lapis</th><th>Yang diperiksa</th></tr></thead><tbody>
+        <tr><td>Fisik</td><td>Kabel, konektor, terminator RS-485, LED link/komunikasi</td></tr>
+        <tr><td>Konfigurasi</td><td>Alamat IP/nomor unit, baud rate, mode link, jumlah word</td></tr>
+        <tr><td>Program</td><td>Alamat data, handshake, heartbeat, flag error komunikasi</td></tr>
+        <tr><td>Alat bantu</td><td><code>ping</code>, <code>ipconfig</code>, monitoring CX-Programmer, communication log</td></tr></tbody></table></div>
+      <p><b>Perilaku aman saat komunikasi putus</b>: stasiun berhenti terkendali di posisi aman, menyalakan alarm, tidak menjalankan langkah yang butuh data stasiun lain, dan tidak restart sendiri saat komunikasi pulih.</p>
+      <div class="widget"><div class="widget-title">Lab jaringan: dua PLC dengan Serial PLC Link <span class="tag mask">diagnosis</span></div><p class="small muted">Tekan "Produk siap" di PLC A dan amati ACK dari B. Lalu pasang gangguan, atau pilih mode diagnosis untuk menebak gangguan tersembunyi.</p><div data-w="net"></div></div>
+      <div class="callout tip"><b class="t">Refleksi akhir tahun</b><p>Dari relay logic sampai sistem berjaringan: bukti teknis apa yang paling kuat darimu, kesulitan terbesar apa, dan kompetensi apa yang akan dilatih saat PKL? Tulis di <a href="#log">Log kerja → Refleksi akhir</a>.</p></div>
+      <div class="meet-box"></div>
+    </section>
+    <div data-modfoot="8"></div>
+    <nav class="pager"><a href="#m7"><small>Sebelumnya</small>Modul 7 · Proses produksi</a><a class="next" href="#asesmen"><small>Berikutnya</small>Asesmen &amp; kuis</a></nav>
+  </div>
+</section>
+
+<!-- ============================== LAB PLC ============================== -->
+<section class="view" id="v-lab" data-title="Lab PLC" hidden>
+  <div class="wrap-wide">
+    <div class="chap-head">
+      <div class="eyebrow">Alat praktik · Modul 2, 4, 5, 7</div>
+      <h1>Lab PLC: simulator ladder Omron</h1>
+      <p class="lead">Pilih stasiun dan program contoh, atau tulis programmu di tab Mnemonik. Tekan tombol di panel, amati aliran daya di ladder dan diagram waktu, lalu uji programmu di tab Misi.</p>
+    </div>
+    <div data-lab></div>
+    <details class="reveal"><summary>Instruksi yang dikenal simulator</summary><div>
+      <p class="small"><code>LD</code>, <code>AND</code>, <code>OR</code> (dengan <code>NOT</code>), <code>AND LD</code>, <code>OR LD</code>, <code>OUT</code>, <code>OUT NOT</code>, <code>SET</code>, <code>RSET</code>, <code>KEEP(011)</code>, <code>DIFU(013)</code>, <code>DIFD(014)</code>, <code>TIM</code>, <code>TIMH(015)</code>, <code>CNT</code>, <code>CNTR(012)</code>, <code>MOV(021)</code>, <code>CMP(020)</code>, pembanding <code>LD = / &lt;&gt; / &lt; / &lt;= / &gt; / &gt;=</code>, <code>++B(594)</code>, <code>--B(595)</code>, <code>SFT(010)</code>, <code>END(001)</code>. Awalan <code>@</code> membuat instruksi hanya bekerja pada tepi naik. Flag: <code>P_First_Cycle</code>, <code>P_On</code>, <code>P_Off</code>, <code>P_0_1s</code>, <code>P_1s</code>, <code>P_EQ</code>, <code>P_GT</code>, <code>P_LT</code>. Simbol stasiun (START, STOP, K1, …) boleh dipakai sebagai alamat.</p>
+      <p class="small muted">Setiap scan disimulasikan 10 ms. Kontaktor punya waktu tarik dan lepas, silinder punya kecepatan, sensor mengikuti posisi benda. Di PLC sungguhan, counter mempertahankan nilainya saat daya padam: tekan RESET sebelum batch pertama.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ============================== LAB GANGGUAN ============================== -->
+<section class="view" id="v-gangguan" data-title="Lab gangguan" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Alat praktik · Modul 1</div>
+      <h1>Lab gangguan: multimeter pada rangkaian DOL</h1>
+      <p class="lead">Latihan bebas: pasang gangguan dan lihat hasil ukurnya. Kasus misteri: gangguan dipilih acak, kamu mengukur lalu menentukan penyebabnya. Utamakan uji kontinuitas saat panel OFF.</p>
+    </div>
+    <div class="widget"><div data-w="meter"></div></div>
+    <div class="callout"><b class="t">Cara membaca multimeter</b><p class="small"><b>0,2 Ω</b>: tersambung (kontak tertutup/kabel utuh). <b>≈ 560 Ω</b>: terhubung lewat kumparan K1. <b>OL</b>: terbuka (kontak terbuka, kabel putus). Mode V hanya saat panel ON dan diawasi guru: 24 V antara titik dan N berarti titik itu masih tersambung ke sumber.</p></div>
+  </div>
+</section>
+
+<!-- ============================== LAB COMMISSIONING ============================== -->
+<section class="view" id="v-commissioning" data-title="Lab commissioning" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Alat praktik · Modul 3</div>
+      <h1>Lab commissioning trainer PLC</h1>
+      <p class="lead">Susun urutan commissioning, lalu lakukan I/O check pada trainer yang menyimpan beberapa kesalahan wiring. Hasilnya bisa disimpan ke lembar commissioning.</p>
+    </div>
+    <div class="widget"><div data-w="comm"></div></div>
+  </div>
+</section>
+
+<!-- ============================== DIAGRAM LANGKAH ============================== -->
+<section class="view" id="v-langkah" data-title="Diagram langkah" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Alat praktik · Modul 5</div>
+      <h1>Diagram langkah dan program step bit</h1>
+      <p class="lead">Ketik notasi sekuens silinder A, B, C. Web menggambar diagram langkah-perpindahan, tabel transisi, dan program metode step bit yang bisa langsung diuji di Lab PLC.</p>
+    </div>
+    <div class="widget"><div data-w="seq"></div></div>
+    <p class="small muted">Alamat: A sensor 0.04/0.05, solenoid 100.00/100.01; B 0.06/0.07, 100.02/100.03; C 0.08/0.09, 100.04/100.05. START 0.00, RESET 0.02, status E-stop 0.03. Program memakai katup 5/2 solenoid ganda dan langkah homing setelah RESET.</p>
+  </div>
+</section>
+
+<!-- ============================== LAB HMI ============================== -->
+<section class="view" id="v-hmi" data-title="Lab HMI" hidden>
+  <div class="wrap-wide">
+    <div class="chap-head">
+      <div class="eyebrow">Alat praktik · Modul 6</div>
+      <h1>Lab HMI: stasiun konveyor penanda</h1>
+      <p class="lead">Konveyor berhenti selama waktu tahan saat produk tiba di sensor B1, lalu jalan lagi. Operasikan dari layar HMI, ubah setpoint di layar Setting (sandi latihan 1234), picu alarm dengan TOR atau E-stop, dan coba salah alamat atau format di daftar tag.</p>
+    </div>
+    <div data-w="hmi"></div>
+  </div>
+</section>
+
+<!-- ============================== LAB JARINGAN ============================== -->
+<section class="view" id="v-jaringan" data-title="Lab jaringan" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Alat praktik · Modul 8</div>
+      <h1>Lab jaringan: dua stasiun dengan Serial PLC Link</h1>
+      <p class="lead">PLC A (sortir) mengirim heartbeat dan "produk siap"; PLC B (pengemas) membalas ACK dan heartbeat. Putuskan kabel, ubah setelan, atau hentikan PLC A, lalu amati watchdog bekerja.</p>
+    </div>
+    <div class="widget"><div data-w="net"></div></div>
+    <div class="widget"><div class="widget-title">Cek alamat IP satu jaringan</div><div data-w="ip"></div></div>
+  </div>
+</section>
+
+<!-- ============================== ALAT HITUNG ============================== -->
+<section class="view" id="v-hitung" data-title="Alat hitung" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Alat praktik</div>
+      <h1>Alat hitung</h1>
+      <p class="lead">Kalkulator yang sering dipakai di bengkel kendali. Setiap hasil disertai cara hitungnya.</p>
+    </div>
+    <nav class="tabnav" role="tablist" aria-label="Jenis kalkulator">
+      <a role="tab" href="#h-tim" data-tab-for="h-tim">TIM &amp; BCD</a>
+      <a role="tab" href="#h-addr" data-tab-for="h-addr">Alamat Omron</a>
+      <a role="tab" href="#h-force" data-tab-for="h-force">Gaya silinder</a>
+      <a role="tab" href="#h-yd" data-tab-for="h-yd">Arus start Y-Δ</a>
+      <a role="tab" href="#h-ip" data-tab-for="h-ip">Alamat IP</a>
+    </nav>
+    <section class="block tab-panel widget" id="h-tim" role="tabpanel"><h2>Timer TIM/TIMH dan BCD</h2><div data-w="tim"></div></section>
+    <section class="block tab-panel widget" id="h-addr" role="tabpanel"><h2>Pembaca alamat Omron</h2><div data-w="addr"></div></section>
+    <section class="block tab-panel widget" id="h-force" role="tabpanel"><h2>Gaya silinder F = p × A</h2><div data-w="force"></div></section>
+    <section class="block tab-panel widget" id="h-yd" role="tabpanel"><h2>Arus start DOL dan bintang</h2><div data-w="yd"></div></section>
+    <section class="block tab-panel widget" id="h-ip" role="tabpanel"><h2>Alamat IP satu jaringan</h2><div data-w="ip"></div></section>
+  </div>
+</section>
+
+<!-- ============================== ASESMEN ============================== -->
+<section class="view" id="v-asesmen" data-title="Asesmen & kuis" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Asesmen</div>
+      <h1>Asesmen dan kuis</h1>
+      <p class="lead">Asesmen awal memetakan prasyarat, formatif tertanam di setiap pertemuan (tiket keluar, test log, misi), dan sumatif berupa produk, demonstrasi, dan tes. Sistem yang tampak berfungsi tetapi melanggar K3 atau tanpa bukti uji belum dinyatakan tercapai.</p>
+    </div>
+    <nav class="tabnav" role="tablist" aria-label="Bagian asesmen">
+      <a role="tab" href="#s-ringkas" data-tab-for="s-ringkas">Ringkasan</a>
+      <a role="tab" href="#s-kuis" data-tab-for="s-kuis">Kuis</a>
+      <a role="tab" href="#s-uraian" data-tab-for="s-uraian">Uraian</a>
+      <a role="tab" href="#s-kasus" data-tab-for="s-kasus">Studi kasus</a>
+      <a role="tab" href="#s-debug" data-tab-for="s-debug">Perbaiki program</a>
+      <a role="tab" href="#s-rubrik" data-tab-for="s-rubrik">Rubrik projek</a>
+    </nav>
+    <section class="block tab-panel" id="s-ringkas" role="tabpanel">
+      <h2>Ringkasan asesmen</h2>
+      <div class="grid">
+        <a class="card tab-card" href="#s-kuis"><h3>Kuis</h3><p class="small muted">40 soal pilihan ganda dari bank soal (5 per modul), langsung dicek dengan pembahasan.</p></a>
+        <a class="card tab-card" href="#s-uraian"><h3>Uraian/kinerja</h3><p class="small muted">16 soal uraian dan kinerja dengan pokok jawaban dan pedoman skor.</p></a>
+        <a class="card tab-card" href="#s-kasus"><h3>Studi kasus</h3><p class="small muted">8 gangguan di bengkel: pilih tindakan pertama yang tepat.</p></a>
+        <a class="card tab-card" href="#s-debug"><h3>Perbaiki program</h3><p class="small muted">8 program ladder bermasalah, diuji otomatis dengan skenario Lab PLC.</p></a>
+        <a class="card tab-card" href="#s-rubrik"><h3>Rubrik projek</h3><p class="small muted">Kalkulator nilai projek terintegrasi 100 poin untuk guru.</p></a>
+        <a class="card tab-card" href="#lkpd"><h3>LKPD</h3><p class="small muted">8 LKPD digital dengan rubrik unjuk kerja (skor/16 × 100).</p></a>
+      </div>
+      <h3>Asesmen diagnostik awal</h3>
+      <ol class="list small" id="g-diag"></ol>
+      <div class="tbl-wrap"><table class="tbl kv small" id="g-diag-tindak"></table></div>
+      <h3>Pembobotan bukti dan tingkat kinerja</h3>
+      <div class="tbl-wrap"><table class="tbl small" id="g-bobot"></table></div>
+      <div class="tbl-wrap"><table class="tbl small" id="g-tingkat"></table></div>
+    </section>
+    <section class="block tab-panel" id="s-kuis" role="tabpanel">
+      <h2>Kuis pilihan ganda</h2>
+      <p class="small muted">Butir 1-5 Modul 1, 6-10 Modul 2, dan seterusnya. Jawaban dicek saat kamu memilih. Kuis tidak menggantikan bukti praktik, pengujian, dan K3.</p>
+      <div class="seg" id="quiz-filter" aria-label="Saring per modul"></div>
+      <div class="score"><b class="tnum" id="quiz-num">0/40</b><span class="muted small" id="quiz-msg">Belum ada jawaban.</span><button class="btn btn-ghost small" type="button" id="quiz-reset" style="margin-left:auto">Ulangi kuis</button></div>
+      <div class="quiz" id="quiz"></div>
+    </section>
+    <section class="block tab-panel" id="s-uraian" role="tabpanel">
+      <h2>Bank soal uraian/kinerja</h2>
+      <p class="small muted">Dua soal per modul. Buka untuk melihat pokok jawaban.</p>
+      <div class="stack" id="uraian"></div>
+      <h3>Pedoman skor uraian</h3>
+      <div class="tbl-wrap"><table class="tbl small" id="uraian-skor"></table></div>
+    </section>
+    <section class="block tab-panel" id="s-kasus" role="tabpanel">
+      <h2>Studi kasus troubleshooting</h2>
+      <p class="small muted">Baca gejalanya, pilih apa yang paling tepat dilakukan <b>pertama kali</b>. Setiap pilihan punya penjelasan.</p>
+      <div class="quiz" id="case-list"></div>
+    </section>
+    <section class="block tab-panel" id="s-debug" role="tabpanel">
+      <h2>Perbaiki program</h2>
+      <p class="small muted">Setiap program punya kesalahan. Perbaiki di kotak teks, lalu tekan <b>Periksa</b>: pemeriksa menjalankan programmu pada salinan stasiun dan menguji skenario normal dan gagal.</p>
+      <div class="quiz" id="debug-list"></div>
+    </section>
+    <section class="block tab-panel" id="s-rubrik" role="tabpanel">
+      <h2>Rubrik projek terintegrasi (100 poin)</h2>
+      <p class="small muted">Untuk guru: pilih skor tiap aspek. Nilai = Σ bobot × skor/4. Pelanggaran K3 kritis, pengaman/E-stop di-bypass, fungsi inti gagal, atau bukti uji tidak cukup wajib ditindaklanjuti walaupun nilai ≥ 75.</p>
+      <div class="panel">
+        <label class="field">Nama kelompok / siswa<input type="text" id="rub-name" placeholder="misal: Kelompok 2 · Andi &amp; Budi" autocomplete="off"></label>
+        <div id="rubric"></div>
+        <div class="rubric-total"><span class="small muted">Nilai akhir</span><b class="tnum" id="rub-total">–</b><span class="small muted" id="rub-detail"></span></div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- ============================== LKPD ============================== -->
+<section class="view" id="v-lkpd" data-title="LKPD" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Lembar kerja</div>
+      <h1>LKPD 1-8</h1>
+      <p class="lead">Isi langsung di sini: langkah kerja, lembar bukti, pertanyaan diskusi, refleksi, dan rubrik unjuk kerja. Semua tersimpan di HP ini dan ikut diunduh di <a href="#kumpul">Kumpulkan hasil</a>.</p>
+    </div>
+    <div class="callout warn"><b class="t">Petunjuk</b><p class="small">Gunakan manual resmi dan trainer berproteksi. Semua modifikasi wiring dan selang dilakukan saat power-off dan tanpa tekanan. Produk tidak digunakan untuk mengendalikan mesin/proses industri nyata tanpa validasi personel kompeten. Guru menyesuaikan tipe PLC, trainer, simulator, dan instrumen tanpa mengubah tujuan, bukti, atau kontrol keselamatan esensial.</p></div>
+    <div class="stack" id="lkpd-list"></div>
+  </div>
+</section>
+
+<!-- ============================== LOG KERJA ============================== -->
+<section class="view" id="v-log" data-title="Log kerja" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Dokumentasi</div>
+      <h1>Log kerja dan format projek</h1>
+      <p class="lead">Format dari lampiran perangkat ajar. Tambah baris sebanyak yang dibutuhkan, unduh CSV untuk dicetak atau dibuka di spreadsheet. Lab gangguan, commissioning, dan jaringan bisa menambah baris otomatis.</p>
+    </div>
+    <nav class="tabnav" role="tablist" aria-label="Jenis log">
+      <a role="tab" href="#l-io" data-tab-for="l-io">I/O list</a>
+      <a role="tab" href="#l-com" data-tab-for="l-com">Commissioning</a>
+      <a role="tab" href="#l-test" data-tab-for="l-test">Test log</a>
+      <a role="tab" href="#l-trb" data-tab-for="l-trb">Troubleshooting</a>
+      <a role="tab" href="#l-net" data-tab-for="l-net">Communication</a>
+      <a role="tab" href="#l-brief" data-tab-for="l-brief">Brief projek</a>
+      <a role="tab" href="#l-refl" data-tab-for="l-refl">Refleksi akhir</a>
+    </nav>
+    <section class="block tab-panel" id="l-io" role="tabpanel"><h2>I/O list dan wiring check</h2><div id="log-io"></div></section>
+    <section class="block tab-panel" id="l-com" role="tabpanel"><h2>Lembar commissioning dan I/O check</h2><div id="log-com"></div><p class="small muted">Tuliskan juga versi program, pemeriksa, tanggal, dan tanda tangan saat dicetak.</p></section>
+    <section class="block tab-panel" id="l-test" role="tabpanel"><h2>Test log program PLC</h2><p class="small muted">Uji kasus normal, batas, dan gagal. Contoh: "START + STOP ditekan bersamaan" → harapan "K1 OFF".</p><div id="log-test"></div></section>
+    <section class="block tab-panel" id="l-trb" role="tabpanel"><h2>Troubleshooting log</h2><p class="small muted">Satu perubahan setiap kali; catat hipotesis dan hasil uji ulang.</p><div id="log-trb"></div></section>
+    <section class="block tab-panel" id="l-net" role="tabpanel"><h2>Communication log</h2><div id="log-net"></div></section>
+    <section class="block tab-panel" id="l-brief" role="tabpanel"><h2>Brief projek sistem kendali</h2><div class="stack" id="log-brief"></div><h3>Form konferensi projek</h3><div class="stack" id="log-konf"></div></section>
+    <section class="block tab-panel" id="l-refl" role="tabpanel"><h2>Refleksi akhir tahun</h2><div class="stack" id="log-refl"></div></section>
+  </div>
+</section>
+
+<!-- ============================== KUMPULKAN ============================== -->
+<section class="view" id="v-kumpul" data-title="Kumpulkan hasil" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Evaluasi</div>
+      <h1>Kumpulkan hasil belajar</h1>
+      <p class="lead">Semua yang kamu kerjakan di web ini terekap di sini: pertemuan, tiket keluar, kuis, studi kasus, perbaiki program, misi Lab PLC, lab gangguan, commissioning, HMI, jaringan, LKPD, dan log. Isi identitas, lalu unduh laporan atau salin ringkasannya.</p>
+    </div>
+    <div class="panel">
+      <div class="hdr-ctl">
+        <label class="field">Nama lengkap<input type="text" id="kp-nama" autocomplete="name"></label>
+        <label class="field">Kelas<input type="text" id="kp-kelas" placeholder="misal: XII TEI 1" autocomplete="off"></label>
+        <label class="field">No. absen<input type="text" id="kp-absen" inputmode="numeric" autocomplete="off"></label>
+        <label class="field">Kelompok / peran<input type="text" id="kp-kelompok" placeholder="misal: Kel. 3 · pemrogram" autocomplete="off"></label>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" type="button" id="kp-download"><svg><use href="#i-down"/></svg>Unduh laporan (.html)</button>
+        <button class="btn btn-ghost" type="button" id="kp-copy"><svg><use href="#i-copy"/></svg>Salin ringkasan</button>
+        <button class="btn btn-ghost small" type="button" id="kp-prog"><svg><use href="#i-down"/></svg>Unduh program Lab PLC (.txt)</button>
+      </div>
+      <p class="small muted">Laporan .html memuat jawaban tiket keluar, LKPD, dan log; bisa dibuka di browser mana pun lalu dicetak atau disimpan sebagai PDF. Ringkasan teks cocok ditempel di WhatsApp atau Google Classroom. Web ini tidak mengirim data ke mana pun.</p>
+    </div>
+    <section class="block"><h2>Rekap</h2><div class="kp-grid" id="kp-rekap"></div></section>
+    <section class="block"><h2>Rincian</h2><div class="stack" id="kp-detail"></div></section>
+  </div>
+</section>
+
+<!-- ============================== GURU ============================== -->
+<section class="view" id="v-guru" data-title="Perangkat guru" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Untuk guru</div>
+      <h1>Perangkat guru</h1>
+      <p class="lead">Ringkasan dari paket perangkat ajar: program tahunan, program semester, RPM per modul, KKTP, jurnal, rekap kemajuan, dan checklist penutupan tahun.</p>
+    </div>
+    <nav class="tabnav" role="tablist" aria-label="Bagian perangkat guru">
+      <a role="tab" href="#g-t-prota" data-tab-for="g-t-prota">Prota &amp; promes</a>
+      <a role="tab" href="#g-t-rpm" data-tab-for="g-t-rpm">RPM modul</a>
+      <a role="tab" href="#g-t-ases" data-tab-for="g-t-ases">KKTP &amp; asesmen</a>
+      <a role="tab" href="#g-t-jurnal" data-tab-for="g-t-jurnal">Jurnal &amp; rekap</a>
+      <a role="tab" href="#g-t-tutup" data-tab-for="g-t-tutup">Penutupan &amp; rujukan</a>
+    </nav>
+    <section class="block tab-panel" id="g-t-prota" role="tabpanel">
+      <h2>Dasar penyusunan</h2><ul class="list small" id="g-dasar"></ul>
+      <h2>Kalender operasional</h2><div class="tbl-wrap"><table class="tbl kv small" id="g-kalender"></table></div>
+      <h2>Program tahunan</h2><div class="tbl-wrap"><table class="tbl small" id="g-prota"></table></div>
+      <h2>Program semester</h2><div class="tbl-wrap"><table class="tbl small" id="g-promes"></table></div>
+    </section>
+    <section class="block tab-panel" id="g-t-rpm" role="tabpanel">
+      <h2>Rencana Pembelajaran Mendalam</h2>
+      <label class="field">Modul<select id="rpm-sel"></select></label>
+      <div class="stack" id="rpm-out"></div>
+      <div id="g-refleksi" class="stack small"></div>
+    </section>
+    <section class="block tab-panel" id="g-t-ases" role="tabpanel">
+      <h2>Arsitektur asesmen</h2><ul class="list small" id="g-arsitektur"></ul>
+      <h2>KKTP per tujuan pembelajaran</h2><div class="tbl-wrap"><table class="tbl small" id="g-kktp"></table></div><p class="small" id="g-kktp-note"></p>
+      <h2>Remedial dan pengayaan</h2><div class="tbl-wrap"><table class="tbl kv small" id="g-remedial"></table></div>
+    </section>
+    <section class="block tab-panel" id="g-t-jurnal" role="tabpanel">
+      <h2>Jurnal pembelajaran guru</h2><div id="g-jurnal"></div>
+      <h2>Rekap kemajuan peserta didik</h2><p class="small muted">Isi nilai per TP (≥ 75 tercapai) dan catatan K3. Data tersimpan di browser ini; unduh CSV untuk arsip.</p><div id="g-rekap"></div>
+    </section>
+    <section class="block tab-panel" id="g-t-tutup" role="tabpanel">
+      <h2>Checklist penutupan tahun</h2><ul class="checklist" id="g-tutup"></ul>
+      <h2>Daftar rujukan utama</h2><ol class="list small" id="g-rujukan"></ol>
+      <p class="small">Sumber daring: <a href="https://bpmpbabel.kemendikdasmen.go.id/PPID/wp-content/uploads/2025/07/KepKaBSKAP-046_2025-ttg-CP.pdf">Keputusan Kepala BSKAP 046/H/KR/2025 (CP)</a> · <a href="https://guru.kemendikdasmen.go.id/kurikulum/referensi-penerapan/capaian-pembelajaran/smk/teknik-elektronika-industri/fase-f/">Referensi TEI Fase F</a> · <a href="https://www.ia.omron.com">Manual Omron</a></p>
+    </section>
+  </div>
+</section>
+
+<!-- ============================== REFERENSI ============================== -->
+<section class="view" id="v-referensi" data-title="Glosarium & referensi" hidden>
+  <div class="wrap">
+    <div class="chap-head">
+      <div class="eyebrow">Bantuan</div>
+      <h1>Glosarium dan referensi cepat</h1>
+      <p class="lead">Istilah penting dari delapan modul dan tabel yang sering dibutuhkan saat praktik.</p>
+    </div>
+    <section class="block">
+      <h2>Glosarium</h2>
+      <input type="search" class="search" id="glo-search" placeholder="Cari istilah, misalnya: interlock, BCD, heartbeat" autocomplete="off" aria-label="Cari istilah">
+      <div class="tbl-wrap"><table class="tbl small" id="glo-table"><thead><tr><th>Istilah</th><th>Arti</th><th>Modul</th></tr></thead><tbody></tbody></table></div>
+    </section>
+    <section class="block">
+      <h2>Instruksi Omron yang dipakai</h2>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Instruksi</th><th>Kode</th><th>Fungsi singkat</th></tr></thead><tbody>
+        <tr><td><code>LD / AND / OR (NOT)</code></td><td>-</td><td>Kontak awal, seri, paralel</td></tr><tr><td><code>AND LD / OR LD</code></td><td>-</td><td>Gabung dua blok seri/paralel</td></tr>
+        <tr><td><code>OUT / OUT NOT</code></td><td>-</td><td>Koil</td></tr><tr><td><code>SET / RSET</code></td><td>-</td><td>Nyalakan/matikan dan tahan</td></tr>
+        <tr><td><code>KEEP</code></td><td>011</td><td>Latch set/reset (reset prioritas)</td></tr><tr><td><code>DIFU / DIFD</code></td><td>013 / 014</td><td>Pulsa satu scan tepi naik/turun</td></tr>
+        <tr><td><code>TIM / TIMH</code></td><td>- / 015</td><td>Timer 0,1 s / 0,01 s, SV BCD</td></tr><tr><td><code>CNT / CNTR</code></td><td>- / 012</td><td>Counter turun / naik-turun</td></tr>
+        <tr><td><code>MOV / CMP</code></td><td>021 / 020</td><td>Salin word / bandingkan</td></tr><tr><td><code>= &lt;&gt; &lt; &lt;= &gt; &gt;=</code></td><td>300-325</td><td>Pembanding sebagai kontak</td></tr>
+        <tr><td><code>SFT</code></td><td>010</td><td>Register geser</td></tr><tr><td><code>++B / --B</code></td><td>594 / 595</td><td>Naik/turun satu (BCD)</td></tr><tr><td><code>END</code></td><td>001</td><td>Akhir program</td></tr></tbody></table></div>
+    </section>
+    <section class="block">
+      <h2>Penandaan terminal kendali</h2>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Terminal</th><th>Arti</th></tr></thead><tbody>
+        <tr><td>A1-A2</td><td>Kumparan kontaktor/relay/timer</td></tr><tr><td>1-2, 3-4, 5-6</td><td>Kontak utama kontaktor</td></tr>
+        <tr><td>13-14, 43-44 (angka akhir 3-4)</td><td>Kontak bantu NO</td></tr><tr><td>21-22, 31-32 (angka akhir 1-2)</td><td>Kontak bantu NC</td></tr>
+        <tr><td>95-96 / 97-98</td><td>Kontak TOR NC / NO</td></tr><tr><td>55-56 / 67-68</td><td>Kontak tunda timer NC / NO</td></tr><tr><td>X1-X2</td><td>Lampu indikator</td></tr></tbody></table></div>
+    </section>
+    <section class="block">
+      <h2>Angka penting</h2>
+      <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Hal</th><th>Nilai</th></tr></thead><tbody>
+        <tr><td>Satu pertemuan</td><td>3 JP × 45 menit = 135 menit: 15 + 30 + 60 + 15 + 15</td></tr>
+        <tr><td>Arus start DOL</td><td>±5-7 × arus nominal; bintang ±⅓ (torsi juga ⅓)</td></tr>
+        <tr><td>Tegangan kendali praktik</td><td>24 VDC</td></tr><tr><td>Tekanan kerja pneumatik trainer</td><td>umumnya 4-6 bar</td></tr>
+        <tr><td>1 bar</td><td>100.000 Pa = 0,1 MPa</td></tr><tr><td>Kendali dua tangan</td><td>kedua tombol dalam ±0,5 s</td></tr>
+        <tr><td>Serial PLC Link CP1E</td><td>CIO 200-289 (CP1L: CIO 3100-3189)</td></tr><tr><td>KKTP</td><td>nilai operasional minimal 75 + kriteria esensial</td></tr></tbody></table></div>
+    </section>
+  </div>
+</section>
+
+  </main>
+
+  <nav class="tabbar" aria-label="Navigasi cepat">
+    <a href="#m1" data-tab="materi"><svg><use href="#i-book"/></svg>Materi</a>
+    <a href="#lab" data-tab="lab"><svg><use href="#i-chip"/></svg>Lab PLC</a>
+    <a href="#lkpd" data-tab="lkpd"><svg><use href="#i-doc"/></svg>LKPD</a>
+    <a href="#asesmen" data-tab="asesmen"><svg><use href="#i-check"/></svg>Kuis</a>
+    <button type="button" id="tab-menu"><svg><use href="#i-menu"/></svg>Menu</button>
+  </nav>
+</div>
+
+<script src="assets/data.js?v=5"></script>
+<script src="assets/plc.js?v=5"></script>
+<script src="assets/stations.js?v=5"></script>
+<script src="assets/widgets.js?v=5"></script>
+<script src="assets/app.js?v=5"></script>
+</body>
+</html>
