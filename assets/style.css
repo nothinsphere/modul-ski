@@ -755,3 +755,41 @@ details.lkpd > summary .rbar { margin-right: 4px; }
 .tbl.small td, .tbl.small th { padding: 6px 9px; font-size: var(--fs-s); }
 .sym { font-family: var(--font-mono); font-weight: 700; color: var(--mask); }
 h4 { font-family: var(--font-display); font-size: 1rem; margin: 0; }
+
+/* ============================== revisi tinjauan: status simpan, menu, pertemuan, gambar ============================== */
+.save-st { font-size: var(--fs-xs); font-weight: 650; color: var(--ink-3); white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+.save-st::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.save-st:empty { display: none; }
+.save-st.ok { color: var(--ok); }
+.save-st.bad { color: var(--err); }
+.savebar { position: sticky; top: calc(var(--top-h) + env(safe-area-inset-top, 0px)); z-index: 39; display: grid; gap: 8px; padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); background: var(--err-soft); border-bottom: 2px solid var(--err); font-size: var(--fs-s); }
+.nav-close { align-self: flex-end; margin-bottom: -10px; }
+@media (min-width: 1024px) { .nav-close { display: none; } }
+.meet-nav { position: sticky; top: calc(var(--top-h) + env(safe-area-inset-top, 0px)); z-index: 14; display: flex; gap: 6px; align-items: center; overflow-x: auto; padding: 8px 0; background: var(--paper); border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.meet-nav::-webkit-scrollbar { display: none; }
+.meet-nav a { flex: none; padding: 5px 12px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-s); text-decoration: none; color: var(--ink-2); }
+.meet-nav a[aria-current] { background: var(--b, var(--mask)); border-color: var(--b, var(--mask)); color: #fff; }
+.meet-nav span { flex: none; }
+.view[id^="v-m"] section.block { scroll-margin-top: calc(var(--top-h) + 64px); }
+.meet-pn { display: flex; justify-content: space-between; gap: 8px; font-size: var(--fs-s); font-weight: 650; }
+.meet-pn a { text-decoration: none; padding: 6px 10px; border-radius: var(--r-m); border: 1px solid var(--line); background: var(--card); }
+.ess-row { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.ess-row > div:first-child { flex: 1 1 16rem; min-width: 0; font-size: var(--fs-s); }
+.ess-seg button[data-v="ya"].on, .ess-seg button[data-lkess="ya"].on { background: var(--ok-soft); color: var(--ok); }
+.ess-seg button[data-v="tidak"].on, .ess-seg button[data-lkess="tidak"].on { background: var(--err-soft); color: var(--err); }
+.mstat { gap: 4px; }
+.mres { margin: 0; font-size: var(--fs-s); padding: 6px 10px; border-radius: var(--r-s); background: var(--sunk); border-left: 4px solid var(--ink-3); }
+.mres.ok { background: var(--ok-soft); border-left-color: var(--ok); }
+.mres.bad { background: var(--err-soft); border-left-color: var(--err); }
+.mres.warn { background: var(--warn-soft); border-left-color: var(--warn); }
+.mres.hist { border-left-style: dashed; color: var(--ink-2); }
+.mode-now { font-size: var(--fs-s); }
+.verdict.stale { opacity: .75; }
+.fig-zoom { justify-self: start; }
+dialog.figdlg { padding: 0; border: 0; border-radius: var(--r-l); width: min(1100px, 96vw); height: min(90vh, 900px); max-width: none; max-height: none; background: var(--card); color: var(--ink); display: none; grid-template-rows: auto minmax(0, 1fr); overflow: hidden; }
+dialog.figdlg[open] { display: grid; }
+dialog.figdlg::backdrop { background: rgb(8 14 12 / 70%); }
+.figdlg-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.figdlg-head p { margin: 0; flex: 1 1 14rem; }
+.figdlg-body { overflow: auto; background: #fff; overscroll-behavior: contain; }
+.figdlg-body img { display: block; max-width: none; height: auto; }

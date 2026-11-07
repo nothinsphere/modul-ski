@@ -34,17 +34,65 @@
     const next = cur === 'dark' ? 'light' : 'dark'; store.set('theme', next); applyTheme(next);
   });
 
+  /* ============================== Status simpan ============================== */
+  // "Tersimpan" hanya ditampilkan setelah penulisan benar-benar berhasil.
+  (function saveStatus() {
+    const st = $('#save-st'), bar = $('#savebar');
+    const hm = d => d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    store.onChange(s => {
+      if (s.failing) {
+        st.className = 'save-st bad'; st.textContent = 'Belum tersimpan';
+        st.title = 'Penyimpanan browser menolak perubahan terakhir';
+        bar.hidden = false;
+      } else if (s.lastOk) {
+        st.className = 'save-st ok'; st.textContent = 'Tersimpan ' + hm(s.lastOk);
+        st.title = 'Tersimpan di browser ini pukul ' + hm(s.lastOk);
+        bar.hidden = true;
+      }
+    });
+    $('#save-retry').addEventListener('click', () => { toast(store.retry() ? 'Berhasil disimpan di browser ini' : 'Masih gagal menyimpan. Unduh cadangan agar pekerjaan tidak hilang.'); });
+    $('#save-export').addEventListener('click', () => bkDownload('Cadangan darurat diunduh (termasuk perubahan yang belum tersimpan).'));
+  })();
+
   /* ============================== Navigasi ============================== */
   const VIEWS = $$('.view').map(v => v.id.slice(2));
   const onShow = {};
   let current = null;
   const sidebar = $('#sidebar'), scrim = $('#scrim');
-  function openDrawer() { sidebar.classList.add('open'); scrim.hidden = false; $('#menu-btn').setAttribute('aria-expanded', 'true'); }
-  function closeDrawer() { sidebar.classList.remove('open'); scrim.hidden = true; $('#menu-btn').setAttribute('aria-expanded', 'false'); }
+  // Menu HP: saat tertutup tidak bisa dijangkau Tab (inert); saat terbuka berperilaku seperti dialog modal.
+  const deskMQ = matchMedia('(min-width: 1024px)');
+  const outsideNav = () => [$('.topbar'), $('#main'), $('.tabbar'), $('#netbar'), $('#savebar')].filter(Boolean);
+  let navOpener = null;
+  function syncNav() {
+    const open = sidebar.classList.contains('open');
+    if (deskMQ.matches) {
+      sidebar.inert = false; outsideNav().forEach(el => { el.inert = false; });
+      sidebar.removeAttribute('role'); sidebar.removeAttribute('aria-modal');
+    } else {
+      sidebar.inert = !open; outsideNav().forEach(el => { el.inert = open; });
+      if (open) { sidebar.setAttribute('role', 'dialog'); sidebar.setAttribute('aria-modal', 'true'); } else { sidebar.removeAttribute('role'); sidebar.removeAttribute('aria-modal'); }
+    }
+    ['#menu-btn', '#tab-menu'].forEach(s => $(s).setAttribute('aria-expanded', open ? 'true' : 'false'));
+  }
+  function openDrawer() {
+    navOpener = document.activeElement;
+    sidebar.classList.add('open'); scrim.hidden = false; syncNav();
+    const act = $('.nav-link.active', sidebar);
+    (act || $('#nav-close')).focus();
+  }
+  function closeDrawer(restore) {
+    if (!sidebar.classList.contains('open')) return false;
+    sidebar.classList.remove('open'); scrim.hidden = true; syncNav();
+    if (restore !== false && navOpener && navOpener.isConnected && navOpener.offsetParent !== null) navOpener.focus();
+    return true;
+  }
   $('#menu-btn').addEventListener('click', openDrawer);
   $('#tab-menu').addEventListener('click', openDrawer);
-  scrim.addEventListener('click', closeDrawer);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+  $('#nav-close').addEventListener('click', () => closeDrawer(true));
+  scrim.addEventListener('click', () => closeDrawer(true));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && closeDrawer(true)) e.preventDefault(); });
+  deskMQ.addEventListener('change', () => { if (deskMQ.matches) closeDrawer(false); syncNav(); });
+  syncNav();
   function showTab(panel) {
     const view = panel.closest('.view');
     $$('.tab-panel', view).forEach(p => { p.hidden = p !== panel; });
@@ -92,7 +140,8 @@
       mountWidgets(view);
       if (onShow[id]) onShow[id]();
     }
-    closeDrawer();
+    // Pindah halaman dari menu HP: tutup menu, fokus ke judul halaman baru (bukan kembali ke tombol menu).
+    if (closeDrawer(false) && !anchor) { const h1 = $('#v-' + id + ' h1'); if (h1) { h1.tabIndex = -1; h1.focus({ preventScroll: true }); } }
     if (panel && anchor === panel) {
       const head = $('.chap-head', $('#v-' + id)), y = head.getBoundingClientRect().bottom + window.scrollY - 60;
       if (viewChanged) window.scrollTo(0, 0); else if (window.scrollY > y) window.scrollTo(0, y);
@@ -186,7 +235,7 @@
     32: 'Stasiun berhenti terkendali di posisi aman, menyalakan alarm, tidak menjalankan langkah yang butuh data dari stasiun lain, dan tidak restart sendiri setelah komunikasi pulih.'
   };
   function renderMeetBoxes() {
-    const { per, min } = jpCfg(), total = per * min, ex = store.get('exit', {});
+    const { per, min } = jpCfg(), total = per * min, ex = exitCache;
     MEET.forEach(m => {
       const host = $(`#p${m.no} .meet-box`);
       if (!host) return;
@@ -194,6 +243,8 @@
         <p><b>${esc(m.exit)}</b></p><textarea rows="3" data-exit="${m.no}" placeholder="Tulis jawabanmu di sini (tersimpan di HP ini)">${esc(ex[m.no] || '')}</textarea>
         <details class="reveal"><summary>Contoh jawaban</summary><div><p>${esc(EXIT_KEY[m.no] || '')}</p></div></details></div>
         <details class="reveal guru-flow"><summary>Alur pertemuan ${m.no} untuk guru (${total} menit)</summary><div>${meetDetail(m, total)}</div></details>`;
+      const M = MODS[m.mod - 1], prev = m.no > M.ptm[0] ? m.no - 1 : null, next = m.no < M.ptm[1] ? m.no + 1 : null;
+      if (!$('.meet-pn', host.parentNode)) host.insertAdjacentHTML('afterend', `<nav class="meet-pn" aria-label="Pertemuan sebelum dan sesudah">${prev ? `<a href="#p${prev}">← P${prev}</a>` : '<span></span>'}${next ? `<a href="#p${next}">P${next} →</a>` : ''}</nav>`);
     });
   }
   function syncMeetChecks() { $$('[data-meetchk]').forEach(cb => { cb.checked = store.get('meet' + cb.dataset.meetchk, false); }); }
@@ -210,6 +261,7 @@
   function renderModHeads() {
     MODS.forEach(m => {
       const h = $(`[data-modhead="${m.no}"]`);
+      if (h && !h.previousElementSibling.classList.contains('meet-nav')) h.insertAdjacentHTML('beforebegin', `<nav class="meet-nav b${m.no}" aria-label="Pertemuan di Modul ${m.no}"><span class="small muted">Lompat ke</span>${m.pertemuan.map(p => `<a href="#p${p.no}" title="${esc(p.judul)}">P${p.no}</a>`).join('')}</nav>`);
       if (h) h.innerHTML = `<div class="mod-card"><div class="stat-grid"><div><span>TP / ATP</span><b>${esc(m.kode)}</b></div><div><span>Alokasi</span><b>${m.pertemuan.length} pertemuan · P${m.ptm[0]}-${m.ptm[1]}</b></div><div><span>Semester</span><b>${esc(m.semester)}</b></div></div>
         <p><b>Tujuan pembelajaran:</b> ${esc(m.tujuan)}</p><p class="small"><b>Pemahaman bermakna:</b> ${esc(m.bermakna)}</p>
         <div class="pemantik">${m.pemantik.map(q => `<span>${esc(q)}</span>`).join('')}</div><p class="small muted"><b>Produk:</b> ${esc(m.produk)}</p></div>`;
@@ -314,6 +366,16 @@
     return Math.round(parts.reduce((a, b) => a + b, 0) / parts.length * 100);
   }
   function rubScore(s) { const v = Object.values(s.rub || {}); return v.length === 4 ? Math.round(v.reduce((a, b) => a + b, 0) / 16 * 100) : null; }
+  // Keputusan KKTP LKPD: nilai angka dan syarat esensial dinilai terpisah.
+  function lkDecision(s) {
+    const sc = rubScore(s), ess = s.ess || '';
+    if (ess === 'tidak') return { status: 'Belum tercapai: syarat esensial gagal', cls: 'bad', follow: 'Perbaiki dan uji ulang, lalu tinjau ulang syarat esensial.' };
+    if (sc === null) return { status: 'Rubrik belum lengkap', cls: 'warn', follow: '' };
+    if (sc < 75) return { status: 'Belum tercapai: nilai di bawah 75', cls: 'bad', follow: 'Remedial pada aspek berskor rendah.' };
+    if (ess !== 'ya') return { status: 'Menunggu validasi syarat esensial', cls: 'warn', follow: 'Guru meninjau K3, pengaman, fungsi inti, dan bukti uji.' };
+    return { status: 'KKTP tercapai', cls: 'good', follow: '' };
+  }
+  const lkDecHtml = s => { const d = lkDecision(s); return `<div class="verdict ${d.cls}"><b>Keputusan: ${esc(d.status)}</b>${d.follow ? `<span class="small">${esc(d.follow)}</span>` : ''}</div>`; };
   function renderLKPD() {
     const box = $('#lkpd-list');
     box.innerHTML = D.lkpd.map(L => `<details class="lkpd" data-lk="${L.no}"><summary><span class="rbar b${L.no}"></span>LKPD ${L.no} · ${esc(L.judul)}<span class="tag" data-prog="${L.no}">${lkpdProgress(L.no)}%</span></summary><div class="lkpd-body" data-body="${L.no}"></div></details>`).join('');
@@ -332,26 +394,36 @@
       <h4>E. Refleksi dan penilaian diri</h4><div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Pernyataan</th><th>Ya / belum</th><th>Bukti / rencana perbaikan</th></tr></thead><tbody>${D.lkRefleksi.map((q, i) => `<tr><td>${esc(q)}</td><td><div class="seg tiny-seg"><button type="button" data-self="${i}" data-v="1" class="${s.self[i] === 1 ? 'on' : ''}">Ya</button><button type="button" data-self="${i}" data-v="0" class="${s.self[i] === 0 ? 'on' : ''}">Belum</button></div></td><td><textarea rows="1" data-selfb="${i}" aria-label="Bukti">${esc(s.selfB[i] || '')}</textarea></td></tr>`).join('')}</tbody></table></div>
       ${['Hal yang paling saya pahami', 'Kesulitan dan strategi saya', 'Perbaikan berikutnya'].map((q, i) => `<label class="field">${q}<textarea rows="2" data-refl="${i}">${esc(s.refl[i] || '')}</textarea></label>`).join('')}
       <h4>F. Rubrik unjuk kerja (diisi guru atau teman)</h4><div class="stack">${D.lkRubrik.slice(1).map((r, i) => `<fieldset class="rubric-row" style="border:0;margin:0;padding:0"><legend class="head"><b>${esc(r[0])}</b></legend><div class="rubric-opts">${r.slice(1).map((dsc, k) => `<label><input type="radio" name="lkr${n}-${i}" data-rub="${i}" value="${4 - k}"${s.rub[i] === 4 - k ? ' checked' : ''}><b>${esc(RUBL[k])}</b>${esc(dsc)}</label>`).join('')}</div></fieldset>`).join('')}</div>
-      <div class="rubric-total"><span class="small muted">Nilai = skor / 16 × 100</span><b class="tnum" data-score>${rubScore(s) === null ? '–' : rubScore(s)}</b><span class="small muted">${rubScore(s) !== null ? (rubScore(s) >= 75 ? 'KKTP tercapai' : 'perlu tindak lanjut') : ''}</span></div>`;
-    const save = () => { store.set('lkpd:' + n, s); $(`[data-prog="${n}"]`).textContent = lkpdProgress(n) + '%'; };
+      <div class="rubric-total"><span class="small muted">Nilai angka = skor / 16 × 100</span><b class="tnum" data-score>${rubScore(s) === null ? '–' : rubScore(s)}</b></div>
+      <div class="ess-row"><div><b>Syarat esensial</b><small class="muted"> · K3 kritis, pengaman/E-stop tidak di-bypass, fungsi inti, bukti uji cukup</small></div><div class="seg tiny-seg ess-seg" role="radiogroup" aria-label="Syarat esensial LKPD ${n}">${[['ya', 'Terpenuhi'], ['tidak', 'Gagal'], ['', 'Belum ditinjau']].map(([v, l]) => `<button type="button" role="radio" data-lkess="${v}" aria-checked="${(s.ess || '') === v}" class="${(s.ess || '') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
+      <div data-lkdec aria-live="polite">${lkDecHtml(s)}</div>`;
+    b._s = s;
+    if (b._bound) return;
+    b._bound = true;
+    // Pendengar dipasang sekali; data selalu dibaca dari b._s (berganti saat LKPD digambar ulang).
+    const save = () => { store.set('lkpd:' + n, b._s); $(`[data-prog="${n}"]`).textContent = lkpdProgress(n) + '%'; };
+    const showDec = () => { const S = b._s, sc = rubScore(S); $('[data-score]', b).textContent = sc === null ? '–' : sc; $('[data-lkdec]', b).innerHTML = lkDecHtml(S); };
     b.addEventListener('change', e => {
-      const t = e.target;
-      if (t.dataset.st !== undefined) { s.steps[t.dataset.st] = t.checked; save(); }
-      if (t.dataset.rub !== undefined) { s.rub[t.dataset.rub] = +t.value; save(); const sc = rubScore(s); $('[data-score]', b).textContent = sc === null ? '–' : sc; $('[data-score]', b).nextElementSibling.textContent = sc !== null ? (sc >= 75 ? 'KKTP tercapai' : 'perlu tindak lanjut') : ''; }
+      const t = e.target, S = b._s;
+      if (t.dataset.st !== undefined) { S.steps[t.dataset.st] = t.checked; save(); }
+      if (t.dataset.rub !== undefined) { S.rub[t.dataset.rub] = +t.value; save(); showDec(); }
     });
     const saveLater = debounce(save, 250);
     b.addEventListener('input', e => {
-      const t = e.target;
-      if (t.dataset.row !== undefined) { s.rows[+t.dataset.row] = s.rows[+t.dataset.row] || []; s.rows[+t.dataset.row][+t.dataset.col] = t.value; }
-      else if (t.dataset.dis !== undefined) s.dis[t.dataset.dis] = t.value;
-      else if (t.dataset.selfb !== undefined) s.selfB[t.dataset.selfb] = t.value;
-      else if (t.dataset.refl !== undefined) s.refl[t.dataset.refl] = t.value;
+      const t = e.target, S = b._s;
+      if (t.dataset.row !== undefined) { S.rows[+t.dataset.row] = S.rows[+t.dataset.row] || []; S.rows[+t.dataset.row][+t.dataset.col] = t.value; }
+      else if (t.dataset.dis !== undefined) S.dis[t.dataset.dis] = t.value;
+      else if (t.dataset.selfb !== undefined) S.selfB[t.dataset.selfb] = t.value;
+      else if (t.dataset.refl !== undefined) S.refl[t.dataset.refl] = t.value;
       else return;
       saveLater();
     });
     b.addEventListener('click', e => {
-      const x = e.target.closest('[data-self]'); if (x) { s.self[x.dataset.self] = +x.dataset.v; save(); $$(`[data-self="${x.dataset.self}"]`, b).forEach(y => y.classList.toggle('on', y === x)); }
-      if (e.target.closest('[data-addrow]')) { s.rows.push([]); save(); drawLK(n); }
+      const S = b._s;
+      const x = e.target.closest('[data-self]'); if (x) { S.self[x.dataset.self] = +x.dataset.v; save(); $$(`[data-self="${x.dataset.self}"]`, b).forEach(y => y.classList.toggle('on', y === x)); }
+      const es = e.target.closest('[data-lkess]');
+      if (es) { S.ess = es.dataset.lkess; save(); $$('[data-lkess]', b).forEach(y => { const on = y === es; y.classList.toggle('on', on); y.setAttribute('aria-checked', on); }); showDec(); }
+      if (e.target.closest('[data-addrow]')) { S.rows.push([]); save(); drawLK(n); }
     });
   }
 
@@ -437,86 +509,282 @@
     { mi: 6, t: 'Konveyor tidak pernah berhenti di 10 produk', h: 'Periksa urutan masukan CNT dan rung motor.', text: STN.PRE.conv.replace('AND NOT C000      ; berhenti saat batch selesai\n', '').replace('LD      0.05      ; sensor produk B1\nLD      0.06      ; tombol RESET', 'LD      0.06      ; tombol RESET\nLD      0.05      ; sensor produk B1') },
     { mi: 7, t: 'Sekuens A+ B+ B- A- melompati B+', h: 'Satu syarat transisi memakai sensor yang salah.', text: STN.PRE.seq.replace('AND     0.07      ; 2B2', 'AND     0.05      ; 2B2') }
   ];
+  const DRES = STN.results('dbg2', 'dbg');
   (function debug() {
-    const box = $('#debug-list'), solved = store.get('dbg', {}), drafts = store.get('dbg-draft', {});
-    box.innerHTML = DEBUG.map((d, i) => `<div class="q${solved[i] ? ' done' : ''}" data-d="${i}"><div class="q-head"><span class="n">${i + 1}</span><b>${esc(d.t)}</b><span class="tag">${MI(d.mi).p}</span>${solved[i] ? '<span class="tag ok">lulus</span>' : ''}</div>
+    const box = $('#debug-list'), drafts = store.get('dbg-draft', {});
+    const cur = i => $(`[data-dt="${i}"]`, box).value;
+    const status = i => { const r = DRES.get(i); $(`[data-out="${i}"]`, box).innerHTML = STN.resultHtml(r, cur(i)); $(`[data-badge="${i}"]`, box).innerHTML = STN.resultBadge(r, cur(i)); $(`[data-d="${i}"]`, box).classList.toggle('done', !!(r.last && r.last.ok && r.last.fp === window.U.fingerprint(cur(i)))); };
+    box.innerHTML = DEBUG.map((d, i) => `<div class="q" data-d="${i}"><div class="q-head"><span class="n">${i + 1}</span><b>${esc(d.t)}</b><span class="tag">${MI(d.mi).p}</span><span data-badge="${i}"></span></div>
       <p class="small">Target: ${esc(MI(d.mi).d)}</p><details class="reveal"><summary>Petunjuk</summary><div><p>${esc(d.h)}</p></div></details>
-      <textarea class="mono code-area" rows="10" spellcheck="false" autocapitalize="characters" data-dt="${i}">${esc(drafts[i] || d.text)}</textarea>
-      <div class="btn-row"><button type="button" class="btn btn-primary small" data-chk="${i}">Periksa</button><button type="button" class="btn btn-ghost small" data-orig="${i}">${icon('reset')}Kembalikan soal</button><a class="btn btn-ghost small" href="#lab" data-tolab="${i}">${icon('play')}Coba di Lab PLC</a></div><div data-out="${i}"></div></div>`).join('');
+      <textarea class="mono code-area" rows="10" spellcheck="false" autocapitalize="characters" data-dt="${i}" aria-label="Program soal ${i + 1}">${esc(drafts[i] || d.text)}</textarea>
+      <div class="btn-row"><button type="button" class="btn btn-primary small" data-chk="${i}">Periksa program ini</button><button type="button" class="btn btn-ghost small" data-orig="${i}">${icon('reset')}Kembalikan soal</button><a class="btn btn-ghost small" href="#lab" data-tolab="${i}">${icon('play')}Coba di Lab PLC</a></div><div class="stack mstat" data-out="${i}" aria-live="polite"></div></div>`).join('');
+    DEBUG.forEach((d, i) => status(i));
     const saveDrafts = debounce(() => store.set('dbg-draft', drafts), 300);
-    box.addEventListener('input', e => { const t = e.target; if (t.dataset.dt === undefined) return; drafts[t.dataset.dt] = t.value; saveDrafts(); });
+    const restat = debounce(i => status(i), 400);
+    box.addEventListener('input', e => { const t = e.target; if (t.dataset.dt === undefined) return; drafts[t.dataset.dt] = t.value; saveDrafts(); restat(+t.dataset.dt); });
     box.addEventListener('click', e => {
       const c = e.target.closest('[data-chk]');
       if (c) {
-        const i = +c.dataset.chk, d = DEBUG[i], out = STN.runTest(MI(d.mi), $(`[data-dt="${i}"]`, box).value);
-        $(`[data-out="${i}"]`, box).innerHTML = `<ul class="checks small">${out.res.map(([t, ok]) => `<li class="${ok ? 'pass' : 'fail'}">${ok ? '✓' : '✕'} ${esc(t)}</li>`).join('')}</ul>`;
-        if (out.ok) { const s = store.get('dbg', {}); s[i] = true; store.set('dbg', s); toast('Lulus'); const q = c.closest('.q'); q.classList.add('done'); }
+        const i = +c.dataset.chk, d = DEBUG[i], text = cur(i), out = STN.runTest(MI(d.mi), text);
+        const { saved } = DRES.record(i, text, out);
+        status(i);
+        toast(out.ok ? (saved ? 'Lulus untuk versi program ini' : 'Lulus, tetapi hasilnya GAGAL disimpan di browser') : 'Masih ada skenario yang gagal');
       }
-      const o = e.target.closest('[data-orig]'); if (o) { const i = +o.dataset.orig; $(`[data-dt="${i}"]`, box).value = DEBUG[i].text; delete drafts[i]; store.set('dbg-draft', drafts); }
-      const l = e.target.closest('[data-tolab]'); if (l) { const i = +l.dataset.tolab, m = MI(DEBUG[i].mi); const txt = $(`[data-dt="${i}"]`, box).value; setTimeout(() => window.LABAPI && window.LABAPI.open(m.st, (STN.PRESETS[m.st].find(p => p.drive === m.drive) || STN.PRESETS[m.st].find(p => p.cyl && m.cyl && p.cyl.length === m.cyl.length) || STN.PRESETS[m.st][0]).id, txt, m.cyl), 30); }
+      const o = e.target.closest('[data-orig]'); if (o) { const i = +o.dataset.orig; $(`[data-dt="${i}"]`, box).value = DEBUG[i].text; delete drafts[i]; store.set('dbg-draft', drafts); status(i); }
+      const l = e.target.closest('[data-tolab]'); if (l) { const i = +l.dataset.tolab, m = MI(DEBUG[i].mi); const txt = cur(i); setTimeout(() => window.LABAPI && window.LABAPI.open(m.st, (STN.PRESETS[m.st].find(p => p.drive === m.drive) || STN.PRESETS[m.st].find(p => p.cyl && m.cyl && p.cyl.length === m.cyl.length) || STN.PRESETS[m.st][0]).id, txt, m.cyl), 30); }
     });
   })();
 
-  /* ============================== Rubrik projek ============================== */
+  /* ============================== Rubrik projek: nilai angka terpisah dari keputusan kompetensi ============================== */
+  const ESS = [
+    ['k3', 'K3 kritis terpenuhi', 'APD, LOTO, pelepasan tekanan, tidak ada wiring berbahaya'],
+    ['aman', 'Pengaman dan E-stop tetap efektif', 'TOR, interlock, dan E-stop hard-wired tidak di-bypass'],
+    ['fungsi', 'Fungsi inti berjalan', 'fungsi inti sesuai tugas projek terbukti bekerja'],
+    ['bukti', 'Bukti uji cukup', 'test log, commissioning, dan demonstrasi dapat diperiksa']];
+  const scoreTxt = v => fmt(v, 1).replace(/,0$/, '');
+  const projRead = () => ({ sel: store.get('rub-projek', {}), ess: store.get('rub-ess', {}), name: store.get('rub-name', ''), note: store.get('rub-note', ''), by: store.get('rub-by', '') });
+  // Kebijakan: skor aspek menentukan nilai angka; syarat esensial ditinjau guru terpisah. Satu syarat gagal = belum tercapai
+  // walaupun nilai tinggi; syarat belum ditinjau atau validator kosong = menunggu validasi; nilai < 75 = belum tercapai.
+  function projDecision(P) {
+    const A = D.rubrik, filled = A.every((_, i) => P.sel[i]), any = A.some((_, i) => P.sel[i]);
+    const score = A.reduce((p, r, i) => p + (P.sel[i] ? +r[1] * P.sel[i] / 4 : 0), 0);
+    const failed = ESS.filter(([k]) => P.ess[k] === 'tidak'), open = ESS.filter(([k]) => P.ess[k] !== 'ya' && P.ess[k] !== 'tidak');
+    const hasBy = !!String(P.by || '').trim(), reasons = [];
+    if (failed.length) reasons.push('Syarat esensial gagal: ' + failed.map(f => f[1]).join('; ') + '.');
+    if (!filled) reasons.push(`${A.filter((_, i) => !P.sel[i]).length} aspek belum diberi skor.`);
+    else if (score < 75) reasons.push(`Nilai ${scoreTxt(score)} di bawah ambang 75.`);
+    if (open.length) reasons.push(`${open.length} syarat esensial belum ditinjau guru.`);
+    if (!failed.length && !open.length && !hasBy) reasons.push('Nama guru yang memvalidasi belum diisi.');
+    let status, cls, follow = '';
+    if (failed.length) { status = 'Belum tercapai'; cls = 'bad'; follow = 'Perbaiki syarat yang gagal, uji ulang dengan bukti, lalu minta validasi ulang guru.'; }
+    else if (!filled) { status = 'Penilaian belum lengkap'; cls = 'warn'; follow = 'Lengkapi skor semua aspek.'; }
+    else if (score < 75) { status = 'Belum tercapai'; cls = 'bad'; follow = 'Remedial pada aspek berskor rendah, lalu nilai ulang.'; }
+    else if (open.length || !hasBy) { status = 'Menunggu validasi guru'; cls = 'warn'; follow = 'Guru meninjau keempat syarat esensial dan mengisi nama validator.'; }
+    else { status = 'Tercapai'; cls = 'good'; }
+    const k3i = A.findIndex(r => /K3/.test(r[0]));
+    const k3low = k3i >= 0 && P.sel[k3i] && P.sel[k3i] <= 2 && P.ess.k3 === 'ya';
+    return { filled, any, score, status, cls, reasons, follow, failed, open, k3low };
+  }
   (function rubric() {
-    const LV = [['4 · Mahir', 1], ['3 · Cakap', 0.75], ['2 · Layak', 0.5], ['1 · Baru berkembang', 0.25]];
-    let sel = store.get('rub-projek', {});
-    $('#rub-name').value = store.get('rub-name', '');
-    $('#rub-name').addEventListener('input', debounce(() => store.set('rub-name', $('#rub-name').value), 300));
+    const LV = [['4 · Mahir', 'melampaui indikator, terverifikasi'], ['3 · Cakap', 'indikator terpenuhi'], ['2 · Layak', 'sebagian, dengan bantuan'], ['1 · Baru berkembang', 'belum tampak']];
+    const P = projRead();
+    $('#rub-name').value = P.name; $('#rub-note').value = P.note; $('#rub-by').value = P.by;
     const calc = () => {
-      const A = D.rubrik, filled = A.every((_, i) => sel[i]);
-      const sum = A.reduce((p, r, i) => p + (sel[i] ? +r[1] * sel[i] / 4 : 0), 0);
-      $('#rub-total').textContent = filled ? fmt(sum, 1).replace(/,0$/, '') : '–';
-      $('#rub-detail').textContent = filled ? `${sum >= 75 ? 'Tercapai (≥ 75)' : 'Belum tercapai'}. Nilai = Σ bobot × skor/4.` : `Pilih skor untuk ${A.filter((_, i) => !sel[i]).length} aspek lagi.`;
+      const d = projDecision(P);
+      $('#rub-total').textContent = d.any ? fmt(d.score, 1).replace(/,0$/, '') + (d.filled ? '' : '*') : '–';
+      $('#rub-detail').textContent = d.filled ? 'Nilai angka = Σ bobot × skor/4.' : d.any ? '* nilai sementara, belum semua aspek dinilai.' : 'Belum ada skor.';
+      $('#rub-dec').className = 'verdict ' + d.cls;
+      $('#rub-dec').innerHTML = `<b>Keputusan kompetensi: ${esc(d.status)}</b>${d.reasons.length ? `<ul class="list small">${d.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}${d.follow ? `<p class="small"><b>Tindak lanjut:</b> ${esc(d.follow)}</p>` : ''}${d.k3low ? '<p class="small">Aspek K3 dan etika bernilai rendah. Pastikan keputusan "K3 kritis terpenuhi" memang sudah ditinjau.</p>' : ''}`;
     };
     $('#rubric').innerHTML = D.rubrik.map((r, i) => `<fieldset class="rubric-row" style="border:0;margin:0;padding-inline:0"><legend class="head" style="display:flex;width:100%"><span style="color:var(--ink);font-family:var(--font-body)">${esc(r[0])}</span><span style="margin-left:auto">bobot ${r[1]}</span></legend><p class="small muted" style="margin:0 0 6px">Indikator cakap: ${esc(r[2])}</p>
-      <div class="rubric-opts">${LV.map(([l], k) => `<label><input type="radio" name="rp${i}" value="${4 - k}"${sel[i] === 4 - k ? ' checked' : ''}><b>${l}</b>${k === 0 ? 'melampaui indikator, terverifikasi' : k === 1 ? 'indikator terpenuhi' : k === 2 ? 'sebagian, dengan bantuan' : 'belum tampak'}</label>`).join('')}</div></fieldset>`).join('');
-    $('#rubric').addEventListener('change', e => { const inp = e.target.closest('input'); if (!inp) return; sel[+inp.name.slice(2)] = +inp.value; store.set('rub-projek', sel); calc(); });
+      <div class="rubric-opts">${LV.map(([l, dsc], k) => `<label><input type="radio" name="rp${i}" value="${4 - k}"${P.sel[i] === 4 - k ? ' checked' : ''}><b>${l}</b>${dsc}</label>`).join('')}</div></fieldset>`).join('');
+    $('#rub-ess').innerHTML = ESS.map(([k, t, d]) => `<div class="ess-row"><div><b>${esc(t)}</b><small class="muted"> · ${esc(d)}</small></div><div class="seg tiny-seg ess-seg" role="radiogroup" aria-label="${esc(t)}">${[['ya', 'Terpenuhi'], ['tidak', 'Gagal'], ['', 'Belum ditinjau']].map(([v, l]) => `<button type="button" role="radio" data-ess="${k}" data-v="${v}" aria-checked="${(P.ess[k] || '') === v}" class="${(P.ess[k] || '') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>`).join('');
+    $('#rubric').addEventListener('change', e => { const inp = e.target.closest('input'); if (!inp) return; P.sel[+inp.name.slice(2)] = +inp.value; store.set('rub-projek', P.sel); calc(); });
+    $('#rub-ess').addEventListener('click', e => {
+      const b = e.target.closest('[data-ess]'); if (!b) return;
+      if (b.dataset.v) P.ess[b.dataset.ess] = b.dataset.v; else delete P.ess[b.dataset.ess];
+      store.set('rub-ess', P.ess);
+      $$(`[data-ess="${b.dataset.ess}"]`).forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-checked', on); });
+      calc();
+    });
+    [['#rub-name', 'name', 'rub-name'], ['#rub-note', 'note', 'rub-note'], ['#rub-by', 'by', 'rub-by']].forEach(([sel, k, key]) => {
+      const persist = debounce(() => store.set(key, P[k]), 300);
+      $(sel).addEventListener('input', () => { P[k] = $(sel).value; persist(); calc(); });
+    });
+    $('#rub-clear').addEventListener('click', () => {
+      if (!confirm('Kosongkan rubrik projek, syarat esensial, catatan, dan validator di browser ini?')) return;
+      P.sel = {}; P.ess = {}; P.name = P.note = P.by = '';
+      ['rub-projek', 'rub-ess', 'rub-name', 'rub-note', 'rub-by'].forEach(k => store.remove(k));
+      $$('#rubric input').forEach(i => { i.checked = false; });
+      $$('#rub-ess [data-ess]').forEach(x => { const on = x.dataset.v === ''; x.classList.toggle('on', on); x.setAttribute('aria-checked', on); });
+      $('#rub-name').value = $('#rub-note').value = $('#rub-by').value = '';
+      calc();
+    });
     calc();
   })();
+
+  /* ============================== Cadangan (JSON) ============================== */
+  // Hanya pekerjaan siswa. Catatan guru (rubrik projek, jurnal, rekap, checklist penutupan) tidak ikut.
+  const BK_APP = 'modul-ski', BK_SCHEMA = 1, BK_MAX = 2 * 1024 * 1024;
+  const BK_RULES = [
+    [/^kp-id$/, 'object'], [/^meet\d{1,2}$/, 'boolean'], [/^exit$/, 'object'], [/^quiz$/, 'object'], [/^cases$/, 'object'],
+    [/^dbg2$/, 'object'], [/^dbg$/, 'object'], [/^dbg-draft$/, 'object'], [/^misi2$/, 'object'], [/^misi$/, 'object'], [/^lab$/, 'object'], [/^seq$/, 'string'],
+    [/^meter$/, 'object'], [/^comm$/, 'object'], [/^comm-order$/, 'boolean'], [/^hmi-check$/, 'object'], [/^hmi-tags$/, 'any'], [/^net$/, 'object'],
+    [/^lkpd:[1-8]$/, 'object'], [/^log:(io|com|test|trb|net)$/, 'array'], [/^brief$/, 'object'], [/^konf$/, 'object'], [/^refl$/, 'object'], [/^chk:(k3-\d{1,2}|po-\d)$/, 'boolean']];
+  const bkRule = k => BK_RULES.find(([re]) => re.test(k));
+  const typeOf = v => v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v;
+  // Nilai cadangan hanya boleh berupa data JSON sederhana dengan batas ukuran wajar.
+  function plainOk(v, depth) {
+    if (depth > 7) return false;
+    const t = typeOf(v);
+    if (t === 'string') return v.length <= 20000;
+    if (t === 'number') return Number.isFinite(v);
+    if (t === 'boolean' || t === 'null') return true;
+    if (t === 'array') return v.length <= 1000 && v.every(x => plainOk(x, depth + 1));
+    if (t === 'object') { const ks = Object.keys(v); return ks.length <= 1000 && ks.every(k => k.length <= 100 && k !== '__proto__' && plainOk(v[k], depth + 1)); }
+    return false;
+  }
+  function bkCollect() {
+    const data = {};
+    store.keys().filter(k => bkRule(k)).sort().forEach(k => { const v = store.get(k, undefined); if (v !== undefined) data[k] = v; });
+    if (Object.keys(exitCache).length) data.exit = exitCache;
+    const id = data['kp-id'] || {};
+    return { app: BK_APP, schema: BK_SCHEMA, created: new Date().toISOString(), student: { nama: id.nama || '', kelas: id.kelas || '', absen: id.absen || '', kelompok: id.kelompok || '' }, data };
+  }
+  const slug = n => (n || 'siswa').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'siswa';
+  function bkDownload(note) {
+    const b = bkCollect(), dt = new Date();
+    const stamp = `${dt.getFullYear()}${String(dt.getMonth() + 1).padStart(2, '0')}${String(dt.getDate()).padStart(2, '0')}-${String(dt.getHours()).padStart(2, '0')}${String(dt.getMinutes()).padStart(2, '0')}`;
+    saveFile(`cadangan-ski-${slug(b.student.nama)}-${stamp}.json`, JSON.stringify(b, null, 1), 'application/json');
+    if (note) toast(note);
+  }
+  // Memeriksa file cadangan. Mengembalikan { ok, err, b }.
+  function bkValidate(text, size) {
+    if (size > BK_MAX) return { err: `File terlalu besar (${fmt(size / 1024, 0)} KB). Batas cadangan 2 MB.` };
+    let b; try { b = JSON.parse(text); } catch (e) { return { err: 'File ini bukan JSON yang valid.' }; }
+    if (typeOf(b) !== 'object' || b.app !== BK_APP) return { err: 'File ini bukan cadangan web Sistem Kendali Industri.' };
+    if (typeof b.schema !== 'number') return { err: 'Versi format cadangan tidak tercantum.' };
+    if (b.schema > BK_SCHEMA) return { err: `Cadangan dibuat oleh versi web yang lebih baru (format ${b.schema}). Buka versi web terbaru lalu coba lagi.` };
+    if (b.schema !== BK_SCHEMA) return { err: `Format cadangan ${b.schema} tidak didukung.` };
+    if (typeOf(b.data) !== 'object') return { err: 'Bagian data cadangan rusak.' };
+    const st = typeOf(b.student) === 'object' ? b.student : {};
+    if (!['nama', 'kelas', 'absen', 'kelompok'].every(k => st[k] === undefined || (typeof st[k] === 'string' && st[k].length <= 200))) return { err: 'Identitas siswa di cadangan tidak valid.' };
+    for (const [k, v] of Object.entries(b.data)) {
+      const r = bkRule(k);
+      if (!r) return { err: `Cadangan berisi data yang tidak dikenal ("${k.slice(0, 40)}"). Pemulihan dibatalkan.` };
+      if (r[1] !== 'any' && typeOf(v) !== r[1]) return { err: `Data "${k}" bertipe ${typeOf(v)}, seharusnya ${r[1]}.` };
+      if (!plainOk(v, 0)) return { err: `Data "${k}" terlalu besar atau tidak wajar.` };
+    }
+    return { ok: true, b };
+  }
+  function bkSummary(data) {
+    const lk = Object.keys(data).filter(k => k.startsWith('lkpd:')).length;
+    const logs = Object.keys(data).filter(k => k.startsWith('log:')).reduce((p, k) => p + (data[k] || []).length, 0);
+    const mis = Object.values(data.misi2 || {}).filter(r => r && r.best).length;
+    const meet = Object.keys(data).filter(k => /^meet\d+$/.test(k) && data[k]).length;
+    const ex = Object.values(data.exit || {}).filter(x => String(x || '').trim()).length;
+    return `${meet} pertemuan dicentang · ${ex} tiket keluar · ${Object.keys(data.quiz || {}).length} jawaban kuis · ${lk} LKPD · ${logs} baris log · ${mis} misi pernah lulus`;
+  }
+  // Mengganti seluruh pekerjaan siswa di browser ini dengan isi cadangan. Gagal di tengah = data lama dikembalikan.
+  function bkRestore(b) {
+    const before = {};
+    store.keys().filter(k => bkRule(k)).forEach(k => { before[k] = store.get(k, undefined); });
+    const written = [];
+    let ok = true;
+    for (const [k, v] of Object.entries(b.data)) { written.push(k); if (!store.set(k, v)) { ok = false; break; } }
+    if (ok) {
+      Object.keys(before).forEach(k => { if (!(k in b.data)) store.remove(k); });
+      return { ok: true };
+    }
+    written.forEach(k => { if (k in before) store.set(k, before[k]); else store.remove(k); });
+    store.retry();
+    return { ok: false };
+  }
 
   /* ============================== Kumpulkan hasil ============================== */
   (function kumpul() {
     const ID = ['nama', 'kelas', 'absen', 'kelompok'];
     const idv = store.get('kp-id', {});
     const syncId = () => { ID.forEach(k => { idv[k] = $('#kp-' + k).value.trim(); }); store.set('kp-id', idv); };
-    ID.forEach(k => { $('#kp-' + k).value = idv[k] || ''; $('#kp-' + k).addEventListener('input', debounce(syncId, 250)); });
+    ID.forEach(k => { $('#kp-' + k).value = idv[k] || ''; $('#kp-' + k).addEventListener('input', debounce(() => { syncId(); rubInfo(); }, 250)); });
+    const fp = window.U.fingerprint, when = window.U.when;
+    const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    // Rubrik projek: cocokkan nama yang dinilai dengan identitas laporan.
+    function rubCheck() {
+      const P = projRead(), dec = projDecision(P), has = dec.any || Object.keys(P.ess).length || P.name.trim() || P.note.trim() || P.by.trim();
+      if (!has) return { has: false, P, dec };
+      const rn = norm(P.name), nm = norm(idv.nama), kl = norm(idv.kelompok);
+      const match = !!rn && ((nm && rn.includes(nm)) || (kl && rn.includes(kl)));
+      const choice = $('#kp-rubchoice') ? $('#kp-rubchoice').value : '';
+      return { has: true, P, dec, match, include: match || choice === 'ya', choice };
+    }
+    function rubInfo() {
+      const box = $('#kp-rubinfo'), r = rubCheck(), prev = $('#kp-rubchoice') ? $('#kp-rubchoice').value : '';
+      if (!r.has) { box.innerHTML = '<p class="small muted">Rubrik projek belum diisi di browser ini.</p>'; return; }
+      const head = `Rubrik projek di browser ini: <b>${esc(r.P.name || '(nama yang dinilai belum diisi)')}</b> · nilai angka ${r.dec.any ? scoreTxt(r.dec.score) : '–'}${r.dec.filled ? '' : ' (belum lengkap)'} · keputusan: <b>${esc(r.dec.status)}</b>`;
+      if (r.match) { box.innerHTML = `<div class="callout tip"><p class="small">${head}. Cocok dengan identitas laporan, jadi ikut disertakan.</p></div>`; return; }
+      box.innerHTML = `<div class="callout warn"><p class="small">${head}. Nama yang dinilai <b>tidak cocok</b> dengan nama/kelompok di identitas laporan. Pilih dulu sebelum mengunduh laporan.</p>
+        <label class="field">Rubrik projek ini…<select id="kp-rubchoice"><option value="">Pilih…</option><option value="ya">milik saya / kelompok saya: sertakan</option><option value="tidak">bukan milik saya: jangan sertakan</option></select></label></div>`;
+      $('#kp-rubchoice').value = prev;
+    }
+    function missionRows() {
+      const lab = store.get('lab', {}), labText = lab.text && lab.text[lab.st + ':' + lab.pre];
+      return STN.MISSIONS.map(m => {
+        const r = STN.MRES.get(m.id), cur = lab.st === m.st && labText ? fp(labText) : null;
+        const last = r.last ? `${r.last.ok ? 'LULUS' : 'GAGAL'} · ${when(r.last.ts)} · versi ${r.last.fp}` : 'belum diuji';
+        const rel = !r.last ? '' : cur === null ? 'program stasiun ini tidak sedang terbuka di Lab' : cur === r.last.fp ? 'sama dengan program di Lab sekarang' : `program di Lab sekarang versi ${cur} (berbeda, belum diuji)`;
+        const best = r.best ? (r.best.legacy ? 'pernah lulus (versi web lama, program tidak tersimpan)' : `pernah lulus · ${when(r.best.ts)} · versi ${r.best.fp}`) : '';
+        return { m, r, row: [m.p + ' ' + m.t, last, rel, best] };
+      });
+    }
+    function debugRows() {
+      const drafts = store.get('dbg-draft', {});
+      return DEBUG.map((d, i) => {
+        const r = DRES.get(i), cur = fp(drafts[i] || d.text);
+        const last = r.last ? `${r.last.ok ? 'LULUS' : 'GAGAL'} · ${when(r.last.ts)} · versi ${r.last.fp}` : 'belum diperiksa';
+        const rel = !r.last ? '' : cur === r.last.fp ? 'sama dengan program sekarang' : `program sekarang versi ${cur} (berbeda, belum diperiksa)`;
+        const best = r.best ? (r.best.legacy ? 'pernah lulus (versi web lama)' : `pernah lulus · ${when(r.best.ts)} · versi ${r.best.fp}`) : '';
+        return { i, r, cur, row: [`${i + 1}. ${d.t}`, last, rel, best] };
+      });
+    }
     function data() {
       syncId();
-      const ans = store.get('quiz', {}), Q = D.soal, ex = store.get('exit', {}), cs = store.get('cases', {}), dbg = store.get('dbg', {}), mis = store.get('misi', {});
+      const ans = store.get('quiz', {}), Q = D.soal, ex = exitCache, cs = store.get('cases', {});
       const perMod = MODS.map(m => { const idx = Q.map((q, i) => i).filter(i => Q[i].m === m.no); return { m: m.no, n: idx.length, benar: idx.filter(i => ans[i] === Q[i].a).length }; });
       const hmi = store.get('hmi-check', {}), met = store.get('meter', { solved: 0, tries: 0 }), net = store.get('net', { solved: 0, tries: 0 }), com = store.get('comm', { score: null });
+      const mis = missionRows(), dbg = debugRows();
       return {
         id: Object.assign({}, idv), meet: MEET.filter(m => store.get('meet' + m.no, false)).map(m => m.no),
         exit: MEET.filter(m => (ex[m.no] || '').trim()).map(m => ({ no: m.no, q: m.exit, a: ex[m.no] })),
         quiz: { benar: perMod.reduce((p, x) => p + x.benar, 0), dij: Object.keys(ans).length, total: Q.length, perMod },
         kasus: { dij: Object.keys(cs).length, tepat: Object.entries(cs).filter(([i, k]) => CASES[i] && CASES[i].o[k] && CASES[i].o[k][1]).length, total: CASES.length },
-        dbg: DEBUG.map((d, i) => i).filter(i => dbg[i]).map(i => i + 1), mis: STN.MISSIONS.filter(m => mis[m.id]).map(m => m.p + ' ' + m.t),
+        mis, misNow: mis.filter(x => x.r.last && x.r.last.ok).length, misEver: mis.filter(x => x.r.best).length,
+        dbg, dbgNow: dbg.filter(x => x.r.last && x.r.last.ok && x.r.last.fp === x.cur).length, dbgEver: dbg.filter(x => x.r.best).length,
         meter: met, net, com, hmi: window.WG.hmi.CHECK.filter(([k]) => hmi[k]).length,
-        lkpd: D.lkpd.map(L => ({ no: L.no, t: L.judul, p: lkpdProgress(L.no), s: lkpdState(L.no), nilai: rubScore(lkpdState(L.no)) })),
-        logs: LOGS.map(([k, t]) => ({ k, t, rows: store.get('log:' + k, []) }))
+        lkpd: D.lkpd.map(L => { const s = lkpdState(L.no); return { no: L.no, t: L.judul, p: lkpdProgress(L.no), s, nilai: rubScore(s), dec: lkDecision(s) }; }),
+        logs: LOGS.map(([k, t]) => ({ k, t, rows: store.get('log:' + k, []) })),
+        rub: rubCheck()
       };
     }
     function cards(d) {
       const c = (t, v, s) => `<div class="kp-card"><span>${t}</span><b>${v}</b><small>${s}</small></div>`;
+      const rb = d.rub.has ? (d.rub.include ? `${d.rub.dec.any ? scoreTxt(d.rub.dec.score) : '–'}` : '–') : '–';
       return c('Pertemuan', `${d.meet.length}/${MEET.length}`, d.meet.length ? 'dicentang selesai' : 'belum dicentang') + c('Tiket keluar', `${d.exit.length}/${MEET.length}`, 'jawaban tertulis') +
         c('Kuis', `${d.quiz.benar}/${d.quiz.total}`, `${d.quiz.dij} soal dijawab`) + c('Studi kasus', `${d.kasus.tepat}/${d.kasus.total}`, `${d.kasus.dij} dijawab`) +
-        c('Perbaiki program', `${d.dbg.length}/${DEBUG.length}`, d.dbg.length ? 'lulus no. ' + d.dbg.join(', ') : 'belum ada') + c('Misi Lab PLC', `${d.mis.length}/${STN.MISSIONS.length}`, d.mis.length ? 'lulus' : 'belum ada') +
+        c('Perbaiki program', `${d.dbgNow}/${DEBUG.length}`, `lulus untuk program sekarang · ${d.dbgEver} pernah lulus`) +
+        c('Misi Lab PLC', `${d.misNow}/${STN.MISSIONS.length}`, `uji terakhir lulus · ${d.misEver} pernah lulus`) +
         c('Lab gangguan', `${d.meter.solved}/${d.meter.tries}`, 'kasus didiagnosis benar') + c('Commissioning', d.com.score === null ? '–' : d.com.score, 'nilai I/O check') +
         c('Uji integrasi HMI', `${d.hmi}/${window.WG.hmi.CHECK.length}`, 'butir checklist') + c('Lab jaringan', `${d.net.solved}/${d.net.tries}`, 'diagnosis benar') +
-        c('LKPD', `${d.lkpd.filter(l => l.p >= 75).length}/8`, 'terisi ≥ 75%');
+        c('LKPD', `${d.lkpd.filter(l => l.p >= 75).length}/8`, 'terisi ≥ 75%') +
+        c('Rubrik projek', rb, d.rub.has ? (d.rub.include ? esc(d.rub.dec.status) : d.rub.choice === 'tidak' ? 'tidak disertakan' : 'perlu konfirmasi identitas') : 'belum diisi');
     }
     const tbl = (head, rows) => `<table><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.length ? rows.map(r => `<tr>${r.map(v => `<td>${esc(v === null || v === undefined || v === '' ? '–' : v)}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${head.length}">–</td></tr>`}</tbody></table>`;
+    function rubSection(d) {
+      if (!d.rub.has) return '<h3>Penilaian projek terintegrasi</h3><p>Rubrik projek belum diisi.</p>';
+      if (!d.rub.include) return `<h3>Penilaian projek terintegrasi</h3><p>Tidak disertakan: rubrik di browser ini tercatat untuk "${esc(d.rub.P.name || '(tanpa nama)')}", ${d.rub.choice === 'tidak' ? 'dan siswa menyatakan bukan miliknya' : 'belum dikonfirmasi milik siswa ini'}.</p>`;
+      const P = d.rub.P, dec = d.rub.dec, E = { ya: 'Terpenuhi', tidak: 'GAGAL' };
+      let h = `<h3>Penilaian projek terintegrasi (rubrik 100 poin)</h3><p>Yang dinilai: <b>${esc(P.name || '(belum diisi)')}</b>${d.rub.match ? '' : ' · dikonfirmasi siswa sebagai miliknya'}</p>`;
+      h += tbl(['Aspek', 'Bobot', 'Skor (1-4)', 'Kontribusi'], D.rubrik.map((r, i) => [r[0], r[1], P.sel[i] || 'belum dinilai', P.sel[i] ? fmt(+r[1] * P.sel[i] / 4, 2) : '']));
+      h += `<p><b>Nilai angka: ${dec.any ? scoreTxt(dec.score) : '–'}</b>${dec.filled ? '' : ' (sementara, belum semua aspek dinilai)'}</p>`;
+      h += tbl(['Syarat esensial', 'Keputusan guru'], ESS.map(([k, t]) => [t, E[P.ess[k]] || 'Belum ditinjau']));
+      h += `<p><b>Keputusan kompetensi: ${esc(dec.status)}</b></p>${dec.reasons.length ? `<ul>${dec.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}${dec.follow ? `<p>Tindak lanjut: ${esc(dec.follow)}</p>` : ''}`;
+      h += `<p>Catatan guru: ${esc(P.note || '–')}<br>Divalidasi oleh: ${esc(P.by || 'belum ada')}</p>`;
+      return h;
+    }
     function detail(d, full) {
       let h = '<h3>Kuis per modul</h3>' + tbl(['Modul', 'Benar'], d.quiz.perMod.map(x => [x.m, `${x.benar}/${x.n}`]));
-      h += '<h3>LKPD</h3>' + tbl(['No', 'Judul', 'Terisi', 'Nilai rubrik'], d.lkpd.map(l => [l.no, l.t, l.p + '%', l.nilai === null ? '' : l.nilai]));
-      h += '<h3>Misi Lab PLC lulus</h3>' + (d.mis.length ? `<p>${esc(d.mis.join('; '))}</p>` : '<p>–</p>');
+      h += '<h3>LKPD (rubrik unjuk kerja)</h3>' + tbl(['No', 'Judul', 'Terisi', 'Nilai angka', 'Syarat esensial', 'Keputusan'], d.lkpd.map(l => [l.no, l.t, l.p + '%', l.nilai === null ? '' : l.nilai, { ya: 'terpenuhi', tidak: 'gagal' }[l.s.ess] || 'belum ditinjau', l.dec.status]));
+      h += '<h3>Misi Lab PLC</h3>' + tbl(['Misi', 'Uji terakhir', 'Hubungan dengan program sekarang', 'Riwayat lulus'], d.mis.map(x => x.row));
+      h += '<h3>Perbaiki program</h3>' + tbl(['Soal', 'Pemeriksaan terakhir', 'Hubungan dengan program sekarang', 'Riwayat lulus'], d.dbg.map(x => x.row));
+      h += rubSection(d);
       if (!full) return h;
+      const snaps = d.mis.filter(x => x.r.best && x.r.best.text);
+      if (snaps.length) h += '<h3>Program yang pernah lulus misi (cuplikan riwayat)</h3>' + snaps.map(x => `<p><b>${esc(x.m.p + ' ' + x.m.t)}</b> · versi ${x.r.best.fp} · ${esc(when(x.r.best.ts))}</p><pre>${esc(x.r.best.text)}</pre>`).join('');
       h += '<h3>Tiket keluar</h3>' + tbl(['P', 'Pertanyaan', 'Jawaban'], d.exit.map(x => [x.no, x.q, x.a]));
       d.lkpd.forEach(l => {
         const L = D.lkpd[l.no - 1], s = l.s;
-        if (l.p === 0) return;
-        h += `<h3>LKPD ${l.no} · ${esc(l.t)}</h3><p>Langkah selesai: ${Object.values(s.steps).filter(Boolean).length}/${L.langkah.length}</p>`;
+        if (l.p === 0 && l.nilai === null) return;
+        h += `<h3>LKPD ${l.no} · ${esc(l.t)}</h3><p>Langkah selesai: ${Object.values(s.steps).filter(Boolean).length}/${L.langkah.length} · Nilai rubrik: ${l.nilai === null ? 'belum lengkap' : l.nilai} · Keputusan: ${esc(l.dec.status)}</p>`;
         h += tbl(L.kolom, (s.rows || []).filter(r => r && r.some(Boolean)).map(r => L.kolom.map((c, k) => r[k] || '')));
         h += tbl(['Pertanyaan', 'Jawaban'], L.diskusi.map((q, i) => [q, s.dis[i] || '']));
         h += tbl(['Pernyataan', 'Ya/belum', 'Bukti'], D.lkRefleksi.map((q, i) => [q, s.self[i] === 1 ? 'Ya' : s.self[i] === 0 ? 'Belum' : '', s.selfB[i] || '']));
@@ -525,29 +793,69 @@
       d.logs.forEach(L => { if (L.rows.length) h += `<h3>${esc(L.t)}</h3>` + tbl(D.format[L.k].filter(c => c !== 'No'), L.rows.map(r => r.c || [])); });
       const brief = store.get('brief', {}); if (Object.keys(brief).length) h += '<h3>Brief projek</h3>' + tbl(['Bagian', 'Isi'], D.format.brief.map((f, i) => [f, brief[i] || '']));
       const refl = store.get('refl', {}); if (Object.keys(refl).length) h += '<h3>Refleksi akhir tahun</h3>' + tbl(['Pertanyaan', 'Jawaban'], D.refleksiAkhir.map((f, i) => [f, refl[i] || '']));
-      const lab = store.get('lab', {}); const lt = lab.text && lab.text[lab.st + ':' + lab.pre]; if (lt) h += `<h3>Program terakhir di Lab PLC</h3><pre>${esc(lt)}</pre>`;
+      const lab = store.get('lab', {}); const lt = lab.text && lab.text[lab.st + ':' + lab.pre]; if (lt) h += `<h3>Program di editor Lab PLC sekarang (versi ${fp(lt)})</h3><pre>${esc(lt)}</pre>`;
       return h;
     }
     function text(d) {
+      const rb = !d.rub.has ? 'belum diisi' : d.rub.include ? `${d.rub.dec.any ? scoreTxt(d.rub.dec.score) : '-'} · ${d.rub.dec.status}` : 'tidak disertakan';
       return [`HASIL BELAJAR · Sistem Kendali Industri XII TEI`, `${d.id.nama || '(nama belum diisi)'} · ${d.id.kelas || '-'} · absen ${d.id.absen || '-'}${d.id.kelompok ? ' · ' + d.id.kelompok : ''}`,
         `Pertemuan selesai: ${d.meet.length}/32 · Tiket keluar: ${d.exit.length}/32`, `Kuis: ${d.quiz.benar}/${d.quiz.total} (${d.quiz.perMod.map(x => `M${x.m} ${x.benar}/${x.n}`).join(', ')})`,
-        `Studi kasus: ${d.kasus.tepat}/${d.kasus.total} · Perbaiki program: ${d.dbg.length}/${DEBUG.length} · Misi Lab PLC: ${d.mis.length}/${STN.MISSIONS.length}`,
+        `Studi kasus: ${d.kasus.tepat}/${d.kasus.total} · Perbaiki program: ${d.dbgNow}/${DEBUG.length} lulus untuk program sekarang (${d.dbgEver} pernah lulus)`,
+        `Misi Lab PLC: ${d.misNow}/${STN.MISSIONS.length} lulus pada uji terakhir (${d.misEver} pernah lulus)`,
         `Lab gangguan: ${d.meter.solved}/${d.meter.tries} · Commissioning: ${d.com.score === null ? '-' : d.com.score} · HMI: ${d.hmi}/7 · Jaringan: ${d.net.solved}/${d.net.tries}`,
-        `LKPD: ${d.lkpd.map(l => `${l.no}:${l.p}%`).join(' ')}`, `Dibuat: ${new Date().toLocaleString('id-ID')}`].join('\n');
+        `LKPD: ${d.lkpd.map(l => `${l.no}:${l.p}%`).join(' ')}`, `Rubrik projek: ${rb}`, `Dibuat: ${new Date().toLocaleString('id-ID')}`].join('\n');
     }
-    function render() { const d = data(); $('#kp-rekap').innerHTML = cards(d); $('#kp-detail').innerHTML = detail(d, false); }
+    function render() { rubInfo(); const d = data(); $('#kp-rekap').innerHTML = cards(d); $('#kp-detail').innerHTML = detail(d, false); }
     $('#kp-copy').addEventListener('click', () => { render(); copyText(text(data())); });
-    const slug = n => (n || 'siswa').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'siswa';
+    $('#kp-rubinfo').addEventListener('change', render);
     $('#kp-download').addEventListener('click', () => {
       render(); const d = data();
       if (!d.id.nama) { toast('Isi nama dulu.'); $('#kp-nama').focus(); return; }
+      if (d.rub.has && !d.rub.match && !d.rub.choice) { toast('Pilih dulu apakah rubrik projek ini milikmu.'); $('#kp-rubchoice').focus(); return; }
       const html = `<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Hasil belajar SKI · ${esc(d.id.nama)}</title>
-<style>body{font:15px/1.5 system-ui,sans-serif;margin:24px auto;max-width:960px;padding:0 16px;color:#16211c}h1{font-size:1.5rem;margin:0}h2{margin-top:28px;font-size:1.2rem}h3{margin:20px 0 6px;font-size:1rem}table{border-collapse:collapse;width:100%;font-size:13px;margin:6px 0}th,td{border:1px solid #c8d3cd;padding:5px 8px;text-align:left;vertical-align:top;white-space:pre-wrap}th{background:#edf3ef}.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}.kp-card{border:1px solid #c8d3cd;border-radius:8px;padding:8px 10px;display:grid}.kp-card b{font-size:1.3rem}.kp-card small,.kp-card span{color:#55655d}pre{white-space:pre-wrap;background:#f3f6f4;padding:10px;border-radius:6px;font-size:12px}@media print{body{margin:0}}</style></head><body>
-<h1>Hasil belajar · Sistem Kendali Industri</h1><p><b>${esc(d.id.nama)}</b> · ${esc(d.id.kelas || '-')} · absen ${esc(d.id.absen || '-')}${d.id.kelompok ? ' · ' + esc(d.id.kelompok) : ''}<br>Dibuat ${esc(new Date().toLocaleString('id-ID'))} dari web media ajar Sistem Kendali Industri kelas XII TEI.</p>
+<style>body{font:15px/1.5 system-ui,sans-serif;margin:24px auto;max-width:960px;padding:0 16px;color:#16211c}h1{font-size:1.5rem;margin:0}h2{margin-top:28px;font-size:1.2rem}h3{margin:20px 0 6px;font-size:1rem;break-after:avoid}table{border-collapse:collapse;width:100%;font-size:13px;margin:6px 0;break-inside:auto}tr{break-inside:avoid}th,td{border:1px solid #c8d3cd;padding:5px 8px;text-align:left;vertical-align:top;white-space:pre-wrap}th{background:#edf3ef}.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}.kp-card{border:1px solid #c8d3cd;border-radius:8px;padding:8px 10px;display:grid}.kp-card b{font-size:1.3rem}.kp-card small,.kp-card span{color:#55655d}pre{white-space:pre-wrap;background:#f3f6f4;padding:10px;border-radius:6px;font-size:12px}@media print{body{margin:0}.kp-card{break-inside:avoid}}</style></head><body>
+<h1>Hasil belajar · Sistem Kendali Industri</h1><p><b>${esc(d.id.nama)}</b> · ${esc(d.id.kelas || '-')} · absen ${esc(d.id.absen || '-')}${d.id.kelompok ? ' · ' + esc(d.id.kelompok) : ''}<br>Dibuat ${esc(new Date().toLocaleString('id-ID'))} dari web media ajar Sistem Kendali Industri kelas XII TEI.<br>Hasil misi dan "Perbaiki program" mencatat versi program (kode 6 karakter). "Uji terakhir" menggambarkan percobaan terakhir; "riwayat lulus" adalah percobaan lebih awal dan belum tentu program yang sekarang.</p>
 <h2>Rekap</h2><div class="kp">${cards(d)}</div><h2>Rincian</h2>${detail(d, true)}</body></html>`;
       saveFile(`hasil-ski-${slug(d.id.nama)}.html`, html, 'text/html');
     });
     $('#kp-prog').addEventListener('click', () => { const lab = store.get('lab', {}); const t = lab.text && lab.text[lab.st + ':' + lab.pre]; if (!t) { toast('Belum ada program di Lab PLC'); return; } syncId(); saveFile(`program-${slug(idv.nama)}.txt`, t); });
+
+    // Cadangan dan pemulihan.
+    $('#bk-export').addEventListener('click', () => { syncId(); bkDownload('Cadangan diunduh. Simpan file .json ini baik-baik.'); });
+    const prev = $('#bk-preview');
+    $('#bk-open').addEventListener('click', () => $('#bk-file').click());
+    $('#bk-file').addEventListener('change', e => {
+      const f = e.target.files && e.target.files[0]; e.target.value = '';
+      if (!f) return;
+      if (f.size > BK_MAX) { prev.innerHTML = `<div class="verdict bad"><b>Ditolak:</b> file terlalu besar (${fmt(f.size / 1024, 0)} KB). Batas 2 MB.</div>`; return; }
+      const rd = new FileReader();
+      rd.onerror = () => { prev.innerHTML = '<div class="verdict bad"><b>File tidak bisa dibaca.</b></div>'; };
+      rd.onload = () => {
+        const v = bkValidate(String(rd.result), f.size);
+        if (!v.ok) { prev.innerHTML = `<div class="verdict bad"><b>Ditolak:</b> ${esc(v.err)} Data di browser ini tidak berubah.</div>`; return; }
+        const b = v.b, st = b.student || {}, cur = store.get('kp-id', {});
+        const curName = (cur.nama || '').trim(), newName = (st.nama || '').trim();
+        const differ = curName && norm(curName) !== norm(newName);
+        const curHas = store.keys().some(k => bkRule(k) && k !== 'kp-id');
+        prev.innerHTML = `<div class="callout ${differ ? 'warn' : 'tip'} stack"><b>Pratinjau cadangan</b>
+          <p class="small">Milik: <b>${esc(newName || '(nama kosong)')}</b> · ${esc(st.kelas || '-')} · absen ${esc(st.absen || '-')}${st.kelompok ? ' · ' + esc(st.kelompok) : ''}<br>Dibuat: ${esc(b.created ? new Date(b.created).toLocaleString('id-ID') : 'tidak tercatat')}<br>Isi: ${esc(bkSummary(b.data))}</p>
+          <p class="small">Tujuan: pekerjaan siswa di browser ini${curName ? ` (tercatat atas nama <b>${esc(curName)}</b>)` : ''}. Pemulihan <b>mengganti</b> seluruh pekerjaan siswa di sini, tidak menggabungkan. Catatan guru (rubrik projek, jurnal, rekap) tidak disentuh.</p>
+          ${differ ? `<label class="small chk"><input type="checkbox" id="bk-confirm"> Saya paham pekerjaan atas nama ${esc(curName)} di browser ini akan diganti dengan milik ${esc(newName || '(nama kosong)')}.</label>` : ''}
+          <div class="btn-row">${curHas ? '<button type="button" class="btn btn-ghost small" id="bk-save-cur">Unduh cadangan data sekarang dulu</button>' : ''}<button type="button" class="btn btn-primary small" id="bk-apply">Ganti dengan cadangan ini</button><button type="button" class="btn btn-ghost small" id="bk-cancel">Batal</button></div></div>`;
+        const cs = $('#bk-save-cur'); if (cs) cs.addEventListener('click', () => bkDownload('Cadangan data sekarang diunduh.'));
+        $('#bk-cancel').addEventListener('click', () => { prev.innerHTML = '<p class="small muted">Pemulihan dibatalkan. Tidak ada yang berubah.</p>'; });
+        $('#bk-apply').addEventListener('click', () => {
+          if (differ && !$('#bk-confirm').checked) { toast('Centang dulu pernyataan penggantian data.'); $('#bk-confirm').focus(); return; }
+          const r = bkRestore(b);
+          if (!r.ok) { prev.innerHTML = '<div class="verdict bad"><b>Pemulihan gagal</b> karena penyimpanan browser menolak data baru. Data sebelumnya sudah dikembalikan. Kosongkan ruang penyimpanan browser lalu coba lagi.</div>'; return; }
+          try { sessionStorage.setItem('ski-restored', newName || '1'); } catch (x) { /* abaikan */ }
+          location.hash = 'kumpul';
+          location.reload();
+        });
+      };
+      rd.readAsText(f);
+    });
+    try { const r = sessionStorage.getItem('ski-restored'); if (r) { sessionStorage.removeItem('ski-restored'); setTimeout(() => toast('Cadangan berhasil dipulihkan'), 300); prev.innerHTML = `<div class="verdict good"><b>Cadangan berhasil dipulihkan${r !== '1' ? ' (milik ' + esc(r) + ')' : ''}.</b> Semua halaman sudah memakai data cadangan.</div>`; } } catch (x) { /* abaikan */ }
     onShow.kumpul = render;
   })();
 
@@ -577,6 +885,52 @@
 
   /* ============================== Checklist tersimpan, offline ============================== */
   fillStatic(); renderModHeads(); renderMeetBoxes(); renderMeetings(); updateProgress(); renderLKPD();
+
+  // Pertemuan yang sedang dibaca ditandai di bilah "Lompat ke".
+  if ('IntersectionObserver' in window) {
+    const seen = new Map();
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => seen.set(en.target, en.isIntersecting ? en.boundingClientRect.top : null));
+      $$('.meet-nav').forEach(nav => {
+        const view = nav.closest('.view');
+        let best = null, bestTop = Infinity;
+        seen.forEach((top, sec) => { if (top !== null && view.contains(sec) && Math.abs(top) < bestTop) { best = sec; bestTop = Math.abs(top); } });
+        if (!best) return;
+        $$('a', nav).forEach(a => { const on = a.getAttribute('href') === '#' + best.id; if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+      });
+    }, { rootMargin: '-120px 0px -55% 0px' });
+    $$('section.block[id^="p"]').forEach(s => { if (/^p\d+$/.test(s.id)) io.observe(s); });
+  }
+
+  // Penampil gambar: perbesar, geser, tutup dengan Esc; fokus kembali ke tombol pemanggil.
+  (function figViewer() {
+    const dlg = document.createElement('dialog');
+    dlg.className = 'figdlg'; dlg.setAttribute('aria-labelledby', 'figdlg-cap');
+    dlg.innerHTML = `<div class="figdlg-head"><p id="figdlg-cap" class="small"></p><div class="btn-row"><button type="button" class="btn btn-ghost small" data-z="-1" aria-label="Perkecil">−</button><span class="small tnum" data-z-lbl>100%</span><button type="button" class="btn btn-ghost small" data-z="1" aria-label="Perbesar">+</button><button type="button" class="btn btn-ghost small" data-z="0">Pas layar</button><button type="button" class="btn btn-primary small" data-close>Tutup</button></div></div><div class="figdlg-body" tabindex="0" aria-label="Gambar diperbesar; geser untuk melihat bagian lain"><img alt=""></div>`;
+    document.body.appendChild(dlg);
+    const img = $('img', dlg), body = $('.figdlg-body', dlg), Z = [1, 1.5, 2, 3, 4];
+    let zi = 0, opener = null;
+    const setZ = i => { zi = clamp(i, 0, Z.length - 1); img.style.width = (Z[zi] * 100) + '%'; $('[data-z-lbl]', dlg).textContent = Z[zi] * 100 + '%'; };
+    $$('figure.fig').forEach(fig => {
+      const im = $('img', fig), cap = $('figcaption', fig);
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn btn-ghost small fig-zoom';
+      b.innerHTML = `${icon('ref')}Perbesar gambar`;
+      b.setAttribute('aria-label', 'Perbesar ' + (cap ? cap.textContent : 'gambar'));
+      b.addEventListener('click', () => {
+        opener = b; img.src = im.src; img.alt = im.alt; $('#figdlg-cap').textContent = cap ? cap.textContent : '';
+        setZ(window.innerWidth < 700 ? 2 : 1);
+        dlg.showModal(); body.scrollTop = 0; body.scrollLeft = 0; body.focus();
+      });
+      (cap || im).insertAdjacentElement('afterend', b);
+    });
+    dlg.addEventListener('click', e => {
+      const z = e.target.closest('[data-z]');
+      if (z) setZ(+z.dataset.z === 0 ? 0 : zi + +z.dataset.z);
+      if (e.target.closest('[data-close]') || e.target === dlg) dlg.close();
+    });
+    dlg.addEventListener('close', () => { if (opener) opener.focus({ preventScroll: true }); });
+  })();
   $$('input[data-save]').forEach(cb => { cb.checked = store.get('chk:' + cb.dataset.save, false); cb.addEventListener('change', () => store.set('chk:' + cb.dataset.save, cb.checked)); });
   const netbar = $('#netbar'), updateNet = () => { netbar.hidden = navigator.onLine; };
   window.addEventListener('online', updateNet); window.addEventListener('offline', updateNet); updateNet();

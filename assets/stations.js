@@ -6,10 +6,48 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // Penyimpanan di browser. Setiap penulisan melaporkan berhasil/gagal. Nilai yang gagal ditulis tetap
+  // dipegang di memori (pending) sehingga masih terbaca, bisa dicoba ulang, dan ikut dalam cadangan darurat.
+  const PFX = 'ski:', pending = {}, listeners = [];
+  let lastOk = null;
+  const rawSet = (k, s) => { try { localStorage.setItem(PFX + k, s); return true; } catch (e) { return false; } };
+  const state = () => ({ failing: Object.keys(pending).length > 0, pending: Object.keys(pending), lastOk });
+  const emit = () => { const s = state(); listeners.forEach(f => { try { f(s); } catch (e) { /* abaikan */ } }); };
   const store = {
-    get(k, d) { try { const v = localStorage.getItem('ski:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-    set(k, v) { try { localStorage.setItem('ski:' + k, JSON.stringify(v)); } catch (e) { /* penyimpanan tidak tersedia */ } }
+    get(k, d) {
+      if (Object.prototype.hasOwnProperty.call(pending, k)) { try { return JSON.parse(pending[k]); } catch (e) { return d; } }
+      try { const v = localStorage.getItem(PFX + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; }
+    },
+    set(k, v) {
+      const s = JSON.stringify(v), ok = rawSet(k, s);
+      if (ok) { delete pending[k]; lastOk = new Date(); } else pending[k] = s;
+      emit();
+      return ok;
+    },
+    remove(k) { delete pending[k]; try { localStorage.removeItem(PFX + k); return true; } catch (e) { return false; } },
+    retry() {
+      let all = true;
+      Object.keys(pending).forEach(k => { if (rawSet(k, pending[k])) delete pending[k]; else all = false; });
+      if (all) lastOk = new Date();
+      emit();
+      return all;
+    },
+    keys() {
+      const ks = new Set(Object.keys(pending));
+      try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith(PFX)) ks.add(k.slice(PFX.length)); } } catch (e) { /* tidak tersedia */ }
+      return [...ks];
+    },
+    onChange(f) { listeners.push(f); },
+    state
   };
+  // Sidik jari program (FNV-1a 32 bit) untuk menandai revisi yang diuji.
+  const fingerprint = text => {
+    const s = String(text || '').replace(/\r\n?/g, '\n').split('\n').map(l => l.replace(/\s+$/, '')).join('\n').trim();
+    let h = 0x811c9dc5;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return h.toString(16).padStart(8, '0').slice(0, 6);
+  };
+  const when = ts => ts ? new Date(ts).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'waktu tidak tercatat';
   const icon = id => `<svg aria-hidden="true"><use href="#i-${id}"/></svg>`;
   let toastTimer;
   function toast(msg) {
@@ -18,7 +56,7 @@
     t.textContent = msg; t.hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2400);
   }
-  window.U = { $, $$, esc, store, icon, toast };
+  window.U = { $, $$, esc, store, icon, toast, fingerprint, when };
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const fmtId = (v, d) => Number(v).toLocaleString('id-ID', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
 
@@ -919,6 +957,50 @@ END(001)`
     return { ok: res.every(x => x[1]), res };
   }
 
+  /* ============================== Catatan hasil uji: terbaru vs riwayat lulus ============================== */
+  const debounceS = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+  // key: kunci penyimpanan baru; legacy: kunci format lama {id: true} yang dimigrasikan sebagai riwayat lulus.
+  function results(key, legacy) {
+    const all = () => {
+      const d = store.get(key, null);
+      if (d) return d;
+      const old = legacy ? store.get(legacy, {}) : {}, n = {};
+      Object.keys(old).forEach(id => { if (old[id]) n[id] = { best: { ts: null, fp: null, legacy: true } }; });
+      return n;
+    };
+    return {
+      all,
+      get(id) { return all()[id] || {}; },
+      record(id, text, out) {
+        const d = all(), r = d[id] || {}, ts = Date.now(), fp = fingerprint(text);
+        r.last = { ok: !!out.ok, fp, ts, res: out.res.slice(0, 24) };
+        if (out.ok) r.best = { fp, ts, text: String(text).slice(0, 12000) };
+        d[id] = r;
+        return { r, saved: store.set(key, d) };
+      }
+    };
+  }
+  const MRES = results('misi2', 'misi');
+  function resultBadge(r, text) {
+    const fp = fingerprint(text), cur = r.last && r.last.fp === fp;
+    let h = '';
+    if (cur) h += r.last.ok ? '<span class="tag ok">lulus · versi ini</span>' : '<span class="tag err">gagal · versi ini</span>';
+    else h += '<span class="tag warn">versi ini belum diuji</span>';
+    if (r.best && !(cur && r.last.ok)) h += ' <span class="tag">pernah lulus</span>';
+    return h;
+  }
+  function resultHtml(r, text) {
+    const fp = fingerprint(text);
+    let h = '';
+    if (r.last) {
+      h += `<p class="mres ${r.last.ok ? 'ok' : 'bad'}"><b>Uji terakhir: ${r.last.ok ? 'LULUS' : 'GAGAL'}</b> · ${esc(when(r.last.ts))} · versi program <code>${r.last.fp}</code></p>`;
+      if (r.last.fp !== fp) h += `<p class="mres warn">Program di editor sudah berubah (versi <code>${fp}</code>). <b>Revisi ini belum diuji.</b></p>`;
+      h += `<details class="reveal"><summary>Rincian uji terakhir</summary><div><ul class="checks small">${(r.last.res || []).map(([t, ok]) => `<li class="${ok ? 'pass' : 'fail'}">${ok ? '✓' : '✕'} ${esc(t)}</li>`).join('')}</ul></div></details>`;
+    } else h += `<p class="mres">Belum pernah diuji. Versi program di editor: <code>${fp}</code>.</p>`;
+    if (r.best && !(r.last && r.last.ok && r.last.ts === r.best.ts)) h += `<p class="mres hist">Riwayat: pernah lulus ${r.best.legacy ? '(tercatat oleh versi web sebelumnya, program tidak tersimpan)' : `pada ${esc(when(r.best.ts))} dengan versi <code>${r.best.fp}</code>`}. Ini bukan hasil untuk program yang sekarang.</p>`;
+    return h;
+  }
+
   /* ============================== Lab PLC (halaman penuh) ============================== */
   function mountLab(box) {
     const saved = store.get('lab', { st: 'motor', pre: 'dol', text: {} });
@@ -926,8 +1008,9 @@ END(001)`
     box.innerHTML = `<div class="lab-top">
         <label class="field">Stasiun<select data-l="st">${Object.keys(PRESETS).map(k => `<option value="${k}">${esc(STATION[k].nama)}</option>`).join('')}</select></label>
         <label class="field">Program contoh<select data-l="pre"></select></label>
-        <div class="stack lab-ctl"><div class="btn-row"><button class="btn btn-primary small" type="button" data-l="run">${icon('play')}RUN</button><button class="btn btn-ghost small" type="button" data-l="power">${icon('reset')}Matikan-hidupkan daya</button><label class="small chk"><input type="checkbox" data-l="latch"> tombol jadi tahan</label></div><span class="small muted" data-l="stat"></span></div>
+        <div class="stack lab-ctl"><div class="mode-now" aria-live="polite">Mode saat ini: <b data-l="mode">RUN</b></div><div class="btn-row"><button class="btn btn-ghost small" type="button" data-l="run">Beralih ke PROGRAM</button><button class="btn btn-ghost small" type="button" data-l="power">${icon('reset')}Matikan-hidupkan daya</button><label class="small chk"><input type="checkbox" data-l="latch"> tombol jadi tahan</label></div><span class="small muted" data-l="stat"></span></div>
       </div>
+      <p class="callout warn small" data-l="dirty" role="status" hidden>Program di editor sudah diubah tetapi <b>belum diunduh</b> ke simulator. Ladder dan panel masih menjalankan versi sebelumnya. Buka tab Mnemonik lalu tekan <b>Program check + unduh ke simulator</b>.</p>
       <div class="lab-grid">
         <div class="stack lab-left">
           <div class="panel"><h3 data-l="sttitle"></h3><div data-l="plant"></div><div data-l="field"></div><div data-l="extra"></div></div>
@@ -937,13 +1020,21 @@ END(001)`
           <nav class="tabnav lab-tabs" role="tablist"><button type="button" class="on" data-t="lad">Ladder</button><button type="button" data-t="edit">Mnemonik</button><button type="button" data-t="mon">Monitor</button><button type="button" data-t="mis">Misi</button></nav>
           <div class="panel lt" data-p="lad"><div data-l="lad"></div></div>
           <div class="panel lt" data-p="edit" hidden><div class="keypad-row" data-l="keys"></div><textarea class="mono code-area" data-l="text" rows="16" spellcheck="false" autocapitalize="characters" autocomplete="off"></textarea>
-            <div class="btn-row"><button class="btn btn-primary small" type="button" data-l="load">${icon('down')}Program check + unduh ke PLC</button><button class="btn btn-ghost small" type="button" data-l="copy">${icon('copy')}Salin</button></div><div data-l="check"></div></div>
+            <div class="btn-row"><button class="btn btn-primary small" type="button" data-l="load">${icon('down')}Program check + unduh ke simulator</button><button class="btn btn-ghost small" type="button" data-l="copy">${icon('copy')}Salin</button></div><p class="small muted">Tombol ini mengunduh program ke simulator di web ini, bukan ke PLC sungguhan.</p><div data-l="check"></div></div>
           <div class="panel lt" data-p="mon" hidden><div data-l="mon"></div></div>
-          <div class="panel lt" data-p="mis" hidden><p class="small muted">Tulis programnya di tab Mnemonik, lalu tekan <b>Uji program</b>. Pemeriksa menjalankan program pada salinan stasiun dan mencoba skenario normal dan gagal.</p><div class="stack" data-l="mis"></div></div>
+          <div class="panel lt" data-p="mis" hidden><p class="small muted">Pemeriksa menguji <b>teks yang sedang ada di editor Mnemonik</b> pada salinan stasiun, dengan skenario normal dan gagal. Setiap hasil dicatat bersama versi program (kode 6 karakter). Mengubah program membuat versi baru yang belum diuji; riwayat lulus sebelumnya tetap terlihat terpisah.</p><div class="stack" data-l="mis"></div></div>
         </div>
       </div>`;
     const L = k => $(`[data-l=${k}]`, box);
-    let sim, drawPlant, drawField, lad, trace = [], watch = {}, curPre = null;
+    let sim, drawPlant, drawField, lad, trace = [], watch = {}, curPre = null, loadedFp = '';
+    // Tanda bila editor berbeda dari program yang sedang berjalan di simulator.
+    const markDirty = () => {
+      const dirty = fingerprint(L('text').value) !== loadedFp;
+      L('dirty').hidden = !dirty;
+      const c = L('check').firstElementChild;
+      if (c) c.classList.toggle('stale', dirty);
+      const n = $('[data-l=checkstale]', box); if (n) n.hidden = !dirty;
+    };
     const save = () => { const d = store.get('lab', { text: {} }); d.st = L('st').value; d.pre = L('pre').value; d.text = d.text || {}; d.text[d.st + ':' + d.pre] = L('text').value; store.set('lab', d); };
     const WATCH_DEF = { motor: ['0.00', '100.00', '100.01', '100.02'], conv: ['0.05', '100.00', '100.05'], pneu: ['100.00', '100.02', '0.05', '0.07'], press: ['0.00', '0.01', '100.01', '100.02'], sortir: ['100.00', '100.01', '100.02', '0.05'] };
 
@@ -966,7 +1057,9 @@ END(001)`
       const st = L('st').value, pre = curPre;
       sim = new Sim(st, { drive: pre.drive || (st === 'motor' ? 'dol' : undefined), cyl: pre.cyl });
       window.__labSim = sim;
+      loadedFp = fingerprint(L('text').value);
       const p = sim.load(L('text').value);
+      markDirty();
       L('sttitle').textContent = sim.st.nama + (sim.st.sub ? ' · ' + sim.st.sub : '');
       drawPlant = sim.st.view(L('plant'), sim);
       drawField = fieldPanel(L('field'), sim, { isLatch: () => L('latch').checked });
@@ -1009,13 +1102,20 @@ END(001)`
       lad && lad.update(); drawPlant && drawPlant(); drawField && drawField();
       f2++;
       if (f2 % 6 === 0) { drawTrace(); if (!L('mon').closest('.lt').hidden) monUpdate(); }
-      L('stat').textContent = `${sim.running ? 'RUN' : 'PROGRAM'} · ${(sim.cpu.t / 1000).toFixed(1).replace('.', ',')} s · ${sim.cpu.scans.toLocaleString('id-ID')} scan${sim.cpu.err ? ' · ' + sim.cpu.err : ''}`;
+      L('stat').textContent = `Program berjalan: versi ${loadedFp} · ${(sim.cpu.t / 1000).toFixed(1).replace('.', ',')} s · ${sim.cpu.scans.toLocaleString('id-ID')} scan${sim.cpu.err ? ' · ' + sim.cpu.err : ''}`;
     }
-    function updateRun() { L('run').innerHTML = sim.running ? `${icon('x')}Mode PROGRAM` : `${icon('play')}Mode RUN`; L('run').classList.toggle('btn-primary', !sim.running); L('run').classList.toggle('btn-ghost', sim.running); }
+    // Tombol menyebut AKSI (mode tujuan); status di atasnya menyebut mode SAAT INI.
+    function updateRun() {
+      L('mode').textContent = sim.running ? 'RUN (program dijalankan)' : 'PROGRAM (program berhenti, output OFF)';
+      L('mode').className = sim.running ? 'ok-t' : 'err-t';
+      L('run').innerHTML = sim.running ? `${icon('x')}Beralih ke PROGRAM` : `${icon('play')}Beralih ke RUN`;
+      L('run').setAttribute('aria-label', sim.running ? 'Beralih ke mode PROGRAM' : 'Beralih ke mode RUN');
+    }
     function showCheck(p) {
-      const c = L('check');
-      if (p.errors.length) c.innerHTML = `<div class="verdict bad"><b>Program check: ${p.errors.length} kesalahan. Program tidak diunduh.</b><ul class="list small">${p.errors.map(e => `<li>Baris ${e.line}: ${esc(e.msg)}</li>`).join('')}</ul></div>`;
-      else c.innerHTML = `<div class="verdict ${p.warns.length ? 'warn' : 'good'}"><b>Program check: 0 kesalahan, ${p.warns.length} peringatan. ${p.rungs.length} rung diunduh.</b>${p.warns.length ? `<ul class="list small">${p.warns.map(e => `<li>Baris ${e.line}: ${esc(e.msg)}</li>`).join('')}</ul>` : ''}</div>`;
+      const c = L('check'), v = `versi <code>${loadedFp}</code>`;
+      const stale = `<p class="small" data-l="checkstale" hidden>Hasil ini untuk ${v}. Editor sudah berubah sejak program check terakhir.</p>`;
+      if (p.errors.length) c.innerHTML = `<div class="verdict bad"><b>Program check ${v}: ${p.errors.length} kesalahan. Program tidak diunduh; simulator berhenti tanpa program.</b><ul class="list small">${p.errors.map(e => `<li>Baris ${e.line}: ${esc(e.msg)}</li>`).join('')}</ul>${stale}</div>`;
+      else c.innerHTML = `<div class="verdict ${p.warns.length ? 'warn' : 'good'}"><b>Program check ${v}: 0 kesalahan, ${p.warns.length} peringatan. ${p.rungs.length} rung diunduh ke simulator.</b>${p.warns.length ? `<ul class="list small">${p.warns.map(e => `<li>Baris ${e.line}: ${esc(e.msg)}</li>`).join('')}</ul>` : ''}${stale}</div>`;
     }
     function buildMon() {
       const st = sim.st, rows = st.inputs.concat(st.outputs);
@@ -1047,18 +1147,30 @@ END(001)`
       tb.innerHTML = rows.length ? rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('') : '<tr><td colspan="2">Belum ada.</td></tr>';
     }
     function missions() {
-      const st = L('st').value, done = store.get('misi', {});
+      const st = L('st').value;
       const list = MISSIONS.filter(m => m.st === st);
-      L('mis').innerHTML = list.map(m => `<div class="q${done[m.id] ? ' done' : ''}" data-mi="${m.id}"><div class="q-head"><span class="n">${m.p}</span><b>${esc(m.t)}</b>${done[m.id] ? '<span class="tag ok">lulus</span>' : ''}</div><p class="small">${esc(m.d)}</p><div class="btn-row"><button type="button" class="btn btn-primary small" data-go="${m.id}">Uji program</button></div><div data-res="${m.id}"></div></div>`).join('') + (MISSIONS.length !== list.length ? `<p class="small muted">Misi lain ada di stasiun: ${[...new Set(MISSIONS.filter(m => m.st !== st).map(m => STATION[m.st].nama))].join(', ')}.</p>` : '');
+      L('mis').innerHTML = list.map(m => `<div class="q" data-mi="${m.id}"><div class="q-head"><span class="n">${m.p}</span><b>${esc(m.t)}</b><span data-badge="${m.id}"></span></div><p class="small">${esc(m.d)}</p><div class="btn-row"><button type="button" class="btn btn-primary small" data-go="${m.id}">Uji program di editor</button></div><div class="stack mstat" data-st="${m.id}" aria-live="polite"></div></div>`).join('') + (MISSIONS.length !== list.length ? `<p class="small muted">Misi lain ada di stasiun: ${[...new Set(MISSIONS.filter(m => m.st !== st).map(m => STATION[m.st].nama))].join(', ')}.</p>` : '');
+      missionStatus();
+    }
+    function missionStatus() {
+      const text = L('text').value;
+      MISSIONS.filter(m => m.st === L('st').value).forEach(m => {
+        const r = MRES.get(m.id), el = $(`[data-st="${m.id}"]`, box), bd = $(`[data-badge="${m.id}"]`, box);
+        if (!el) return;
+        el.innerHTML = resultHtml(r, text);
+        bd.innerHTML = resultBadge(r, text);
+        el.closest('.q').classList.toggle('done', !!(r.last && r.last.ok && r.last.fp === fingerprint(text)));
+      });
     }
     L('mis').addEventListener('click', e => {
       const b = e.target.closest('[data-go]'); if (!b) return;
-      const m = MISSIONS.find(x => x.id === +b.dataset.go);
-      const out = runTest(m, L('text').value);
-      $(`[data-res="${m.id}"]`, box).innerHTML = `<ul class="checks small">${out.res.map(([t, ok]) => `<li class="${ok ? 'pass' : 'fail'}">${ok ? '✓' : '✕'} ${esc(t)}</li>`).join('')}</ul>`;
-      if (out.ok) { const d = store.get('misi', {}); d[m.id] = true; store.set('misi', d); toast('Misi lulus'); const q = b.closest('.q'); q.classList.add('done'); if (!$('.tag.ok', q)) $('.q-head', q).insertAdjacentHTML('beforeend', '<span class="tag ok">lulus</span>'); }
-      else toast('Masih ada skenario yang gagal');
+      const m = MISSIONS.find(x => x.id === +b.dataset.go), text = L('text').value;
+      const out = runTest(m, text);
+      const { saved } = MRES.record(m.id, text, out);
+      missionStatus();
+      toast(out.ok ? (saved ? 'Misi lulus untuk versi program ini' : 'Misi lulus, tetapi hasilnya GAGAL disimpan di browser') : 'Masih ada skenario yang gagal');
     });
+    L('text').addEventListener('input', debounceS(missionStatus, 400));
     const KEYS = ['LD ', 'LD NOT ', 'AND ', 'AND NOT ', 'OR ', 'OR NOT ', 'OUT ', 'AND LD', 'OR LD', 'SET ', 'RSET ', 'KEEP(011) ', 'DIFU(013) ', 'TIM 000 #', 'CNT 000 #', 'END(001)'];
     L('keys').innerHTML = KEYS.map(k => `<button type="button" class="btn btn-ghost tiny mono" data-k="${esc(k)}">${esc(k.trim())}</button>`).join('');
     L('keys').addEventListener('click', e => {
@@ -1067,14 +1179,14 @@ END(001)`
       const atStart = s === 0 || v[s - 1] === '\n';
       const ins = (atStart ? '' : '\n') + b.dataset.k;
       ta.value = v.slice(0, s) + ins + v.slice(ta.selectionEnd);
-      ta.selectionStart = ta.selectionEnd = s + ins.length; ta.focus(); save();
+      ta.selectionStart = ta.selectionEnd = s + ins.length; ta.focus(); ta.dispatchEvent(new Event('input', { bubbles: true }));
     });
     L('st').addEventListener('change', () => { setStation(L('st').value, null, true); save(); });
     L('pre').addEventListener('change', () => { setPreset(true); save(); });
-    L('text').addEventListener('input', save);
-    L('load').addEventListener('click', () => { build(); save(); const p = sim.prog; toast(p.errors.length ? 'Program check gagal' : 'Program diunduh ke PLC'); });
+    L('text').addEventListener('input', () => { save(); markDirty(); });
+    L('load').addEventListener('click', () => { build(); save(); const p = sim.prog; toast(p.errors.length ? 'Program check gagal: program tidak diunduh' : 'Program diunduh ke simulator'); });
     L('copy').addEventListener('click', () => { window.U.copy && window.U.copy(L('text').value); });
-    L('run').addEventListener('click', () => { sim.running = !sim.running; if (!sim.running) { /* mode PROGRAM: output OFF */ sim.cpu.m.CIO = {}; } updateRun(); });
+    L('run').addEventListener('click', () => { sim.running = !sim.running; if (!sim.running) { /* mode PROGRAM: output OFF */ sim.cpu.m.CIO = {}; } updateRun(); toast(sim.running ? 'Sekarang mode RUN' : 'Sekarang mode PROGRAM: output dimatikan'); });
     L('power').addEventListener('click', () => { sim.cpu.powerCycle(); sim.field = {}; $$('.fbtn', L('field')).forEach(b => { b.classList.remove('on'); }); toast('Daya dimatikan lalu dihidupkan: W, output, dan timer hilang; H dan D bertahan'); });
     $('.lab-tabs', box).addEventListener('click', e => {
       const b = e.target.closest('[data-t]'); if (!b) return;
@@ -1090,9 +1202,9 @@ END(001)`
         save();
       },
       text: () => L('text').value,
-      missions: () => MISSIONS.map(m => ({ id: m.id, p: m.p, t: m.t, st: STATION[m.st].nama, ok: !!store.get('misi', {})[m.id] }))
+      missions: () => MISSIONS.map(m => ({ id: m.id, p: m.p, t: m.t, st: STATION[m.st].nama, r: MRES.get(m.id) }))
     };
   }
 
-  window.STN = { Sim, mini, mountLab, fieldPanel, runTest, PRE, MISSIONS, STATION, PRESETS, parseSeq, seqProgram, LIVE, CYL };
+  window.STN = { Sim, mini, mountLab, fieldPanel, runTest, PRE, MISSIONS, STATION, PRESETS, parseSeq, seqProgram, LIVE, CYL, results, resultHtml, resultBadge, MRES };
 })();

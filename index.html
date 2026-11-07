@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="assets/style.css?v=5">
+<link rel="stylesheet" href="assets/style.css?v=8">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -47,6 +47,7 @@
 
 <div class="app">
   <aside class="sidebar" id="sidebar" aria-label="Navigasi">
+    <button class="icon-btn nav-close" id="nav-close" type="button" aria-label="Tutup menu"><svg><use href="#i-x"/></svg></button>
     <a class="brand" href="#beranda">
       <svg class="brand-chip" viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="3" width="34" height="34" rx="8" fill="var(--mask)"/><g stroke="var(--mask-ink)" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M9 14h6M15 9v10M19 9v10M19 14h12"/><path d="M9 27h7M27 27h4"/><path d="M19 22a4 5 0 0 0 0 10M24 22a4 5 0 0 1 0 10"/></g></svg>
       <span><b>Sistem Kendali Industri</b><small>SMK · XII TEI · PLC Omron</small></span>
@@ -102,9 +103,14 @@
   <header class="topbar">
     <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Buka menu" aria-controls="sidebar" aria-expanded="false"><svg><use href="#i-menu"/></svg></button>
     <div class="topbar-title" id="topbar-title">Beranda</div>
+    <span class="save-st" id="save-st" role="status" aria-live="polite"></span>
     <button class="icon-btn" id="theme-btn" type="button" aria-label="Ganti tema terang/gelap"><svg><use href="#i-moon"/></svg></button>
   </header>
   <div class="netbar" id="netbar" role="status" hidden>Sedang offline. Materi, Lab PLC, kuis, dan LKPD tetap bisa dipakai. Tautan bertanda ↗ ke situs lain butuh internet.</div>
+  <div class="savebar" id="savebar" role="alert" hidden>
+    <p><b>Perubahan terakhir belum tersimpan di browser ini.</b> Penyimpanan browser penuh, diblokir, atau tidak diizinkan (misalnya mode privat tertentu). Pekerjaanmu masih ada selama halaman ini tetap terbuka. Jangan tutup halaman sebelum menyimpan cadangan.</p>
+    <div class="btn-row"><button type="button" class="btn btn-ghost small" id="save-retry"><svg><use href="#i-reset"/></svg>Coba simpan lagi</button><button type="button" class="btn btn-primary small" id="save-export"><svg><use href="#i-down"/></svg>Unduh cadangan sekarang</button></div>
+  </div>
 
   <main class="main" id="main">
 
@@ -252,6 +258,8 @@
         <li>Buka web ini sekali saat ada internet. Salinannya disimpan otomatis oleh browser.</li>
         <li>Setelah itu web bisa dibuka ulang tanpa internet di browser yang sama (bukan mode penyamaran).</li>
         <li>Kemajuan, jawaban kuis, LKPD, log, dan program Lab PLC tersimpan di browser masing-masing, tidak dikirim ke mana pun. Kumpulkan lewat halaman <a href="#kumpul">Kumpulkan hasil</a>.</li>
+        <li>Data itu terikat pada browser dan alamat web ini. Menghapus riwayat atau data situs akan menghapusnya. Di mode penyamaran/privat, data biasanya hilang saat jendela ditutup (perilakunya berbeda antarbrowser). Status simpan tampil di bilah atas.</li>
+        <li>Untuk pindah HP/laptop atau berjaga-jaga, unduh <b>cadangan (.json)</b> di <a href="#kumpul">Kumpulkan hasil</a>, lalu pulihkan di browser lain.</li>
       </ul>
     </section>
   </div>
@@ -1201,11 +1209,19 @@ OUT     W30.00        ; alarm komunikasi -> stasiun B berhenti aman</pre>
     </section>
     <section class="block tab-panel" id="s-rubrik" role="tabpanel">
       <h2>Rubrik projek terintegrasi (100 poin)</h2>
-      <p class="small muted">Untuk guru: pilih skor tiap aspek. Nilai = Σ bobot × skor/4. Pelanggaran K3 kritis, pengaman/E-stop di-bypass, fungsi inti gagal, atau bukti uji tidak cukup wajib ditindaklanjuti walaupun nilai ≥ 75.</p>
+      <p class="small muted">Untuk guru. <b>Nilai angka</b> dihitung dari skor aspek (Σ bobot × skor/4). <b>Keputusan kompetensi</b> ditentukan terpisah: tercapai hanya bila nilai ≥ 75 <b>dan</b> keempat syarat esensial sudah ditinjau dan terpenuhi, lalu divalidasi guru. Satu syarat esensial yang gagal membuat status belum tercapai walaupun nilainya tinggi. Skor rendah pada aspek K3 menurunkan nilai; kegagalan K3 kritis dicatat di syarat esensial.</p>
       <div class="panel">
-        <label class="field">Nama kelompok / siswa<input type="text" id="rub-name" placeholder="misal: Kelompok 2 · Andi &amp; Budi" autocomplete="off"></label>
+        <label class="field">Nama kelompok / siswa yang dinilai<input type="text" id="rub-name" placeholder="misal: Kelompok 2 · Andi &amp; Budi" autocomplete="off"></label>
+        <h3>1 · Skor aspek</h3>
         <div id="rubric"></div>
-        <div class="rubric-total"><span class="small muted">Nilai akhir</span><b class="tnum" id="rub-total">–</b><span class="small muted" id="rub-detail"></span></div>
+        <div class="rubric-total"><span class="small muted">Nilai angka</span><b class="tnum" id="rub-total">–</b><span class="small muted" id="rub-detail"></span></div>
+        <h3>2 · Syarat esensial (ditinjau guru)</h3>
+        <div class="stack" id="rub-ess"></div>
+        <label class="field">Catatan dan tindak lanjut guru<textarea id="rub-note" rows="3"></textarea></label>
+        <label class="field">Divalidasi oleh (nama guru)<input type="text" id="rub-by" autocomplete="off"></label>
+        <h3>3 · Keputusan</h3>
+        <div id="rub-dec" class="verdict warn" aria-live="polite"></div>
+        <div class="btn-row"><button type="button" class="btn btn-ghost small" id="rub-clear">Kosongkan rubrik ini</button></div>
       </div>
     </section>
   </div>
@@ -1271,8 +1287,16 @@ OUT     W30.00        ; alarm komunikasi -> stasiun B berhenti aman</pre>
         <button class="btn btn-ghost" type="button" id="kp-copy"><svg><use href="#i-copy"/></svg>Salin ringkasan</button>
         <button class="btn btn-ghost small" type="button" id="kp-prog"><svg><use href="#i-down"/></svg>Unduh program Lab PLC (.txt)</button>
       </div>
-      <p class="small muted">Laporan .html memuat jawaban tiket keluar, LKPD, dan log; bisa dibuka di browser mana pun lalu dicetak atau disimpan sebagai PDF. Ringkasan teks cocok ditempel di WhatsApp atau Google Classroom. Web ini tidak mengirim data ke mana pun.</p>
+      <p class="small muted">Laporan .html memuat jawaban tiket keluar, LKPD, log, hasil misi, dan rubrik projek; bisa dibuka di browser mana pun lalu dicetak atau disimpan sebagai PDF. Ringkasan teks cocok ditempel di WhatsApp atau Google Classroom. Web ini tidak mengirim data ke mana pun.</p>
+      <div class="stack" id="kp-rubinfo"></div>
     </div>
+    <section class="block" id="s-cadangan">
+      <h2>Cadangan dan pemulihan</h2>
+      <p class="small">Laporan .html hanya untuk dibaca dan dicetak. Untuk memindahkan pekerjaan ke HP/laptop lain, atau berjaga-jaga bila data browser terhapus, simpan <b>cadangan (.json)</b> lalu pulihkan di browser tujuan.</p>
+      <details class="reveal"><summary>Isi cadangan</summary><div><p class="small">Identitas siswa, pertemuan yang dicentang, jawaban tiket keluar, kuis, studi kasus, program dan hasil "Perbaiki program", program dan hasil misi Lab PLC, diagram langkah, hasil lab gangguan/commissioning/HMI/jaringan, LKPD 1-8 (termasuk rubrik LKPD), log kerja, brief projek, konferensi, refleksi, dan checklist K3/power-off. <b>Tidak termasuk</b> catatan guru: rubrik projek, jurnal guru, rekap nilai, dan checklist penutupan tahun.</p></div></details>
+      <div class="btn-row"><button class="btn btn-primary small" type="button" id="bk-export"><svg><use href="#i-down"/></svg>Unduh cadangan (.json)</button><button type="button" class="btn btn-ghost small" id="bk-open"><svg><use href="#i-up"/></svg>Pulihkan dari cadangan…</button><input type="file" id="bk-file" accept=".json,application/json" hidden></div>
+      <div class="stack" id="bk-preview" aria-live="polite"></div>
+    </section>
     <section class="block"><h2>Rekap</h2><div class="kp-grid" id="kp-rekap"></div></section>
     <section class="block"><h2>Rincian</h2><div class="stack" id="kp-detail"></div></section>
   </div>
@@ -1375,10 +1399,10 @@ OUT     W30.00        ; alarm komunikasi -> stasiun B berhenti aman</pre>
   </nav>
 </div>
 
-<script src="assets/data.js?v=5"></script>
-<script src="assets/plc.js?v=5"></script>
-<script src="assets/stations.js?v=5"></script>
-<script src="assets/widgets.js?v=5"></script>
-<script src="assets/app.js?v=5"></script>
+<script src="assets/data.js?v=8"></script>
+<script src="assets/plc.js?v=8"></script>
+<script src="assets/stations.js?v=8"></script>
+<script src="assets/widgets.js?v=8"></script>
+<script src="assets/app.js?v=8"></script>
 </body>
 </html>

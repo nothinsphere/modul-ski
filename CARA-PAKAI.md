@@ -55,6 +55,20 @@ Periksa kembali sebelum dipakai untuk penilaian.
 - **Tambahan pengembang** (tidak ada di dokumen, perlu dicek guru): tabel I/O stasiun sortir (termasuk sensor S0 benda masuk untuk watchdog) dan stasiun press hidrolik; pembahasan 40 soal kuis (kuncinya dari dokumen dan sudah dicek ulang); pokok jawaban uraian kecuali butir 10 (kunci asli dokumen); contoh jawaban 32 tiket keluar; 8 studi kasus; 8 program perbaiki; tingkat skor 1-4 pada rubrik projek (dokumen hanya memuat indikator cakap).
 - Rumus waktu, KKTP 75, bobot bukti, rubrik projek 100 poin, LKPD, dan format lampiran diambil apa adanya dari dokumen (`assets/data.js` dibangkitkan dari docx).
 
+## Revisi setelah tinjauan (8 November 2026)
+
+- **Hasil misi dan "Perbaiki program"**: setiap uji dicatat bersama versi program (kode 6 karakter), waktu, dan rinciannya. Kartu menampilkan *uji terakhir* (lulus/gagal) terpisah dari *riwayat pernah lulus*. Mengubah program langsung ditandai "versi ini belum diuji". Laporan menuliskan hubungan tiap hasil dengan program yang sekarang dan menyertakan cuplikan program yang pernah lulus. Catatan lulus dari versi web sebelumnya dimigrasikan sebagai riwayat.
+- **Rubrik projek**: nilai angka (Σ bobot × skor/4) dipisahkan dari keputusan kompetensi. Guru meninjau empat syarat esensial (K3 kritis, pengaman/E-stop, fungsi inti, bukti uji) dan mengisi nama validator. Satu syarat gagal = belum tercapai walaupun nilai tinggi; syarat belum ditinjau atau validator kosong = menunggu validasi; nilai < 75 = belum tercapai. Rubrik LKPD memakai aturan yang sama (satu isian syarat esensial).
+- **Status simpan**: bilah atas menampilkan "Tersimpan HH.MM" hanya setelah penulisan berhasil. Bila browser menolak penyimpanan, muncul peringatan merah dengan tombol "Coba simpan lagi" dan "Unduh cadangan sekarang"; isian tetap ada di memori selama halaman terbuka.
+- **Cadangan (.json)** di Kumpulkan hasil: unduh dan pulihkan pekerjaan siswa (format `modul-ski`, versi 1, maks 2 MB). File diperiksa (aplikasi, versi, jenis dan ukuran data, kunci yang dikenal) dan ditampilkan pratinjaunya. Pemulihan mengganti, tidak menggabungkan; bila nama berbeda harus dikonfirmasi; bila gagal di tengah, data lama dikembalikan. Catatan guru (rubrik projek, jurnal, rekap, checklist penutupan) tidak ikut cadangan siswa.
+- **Laporan** memuat rubrik projek (skor per aspek, bobot, kontribusi, nilai, syarat esensial, keputusan, catatan, validator). Bila nama yang dinilai tidak cocok dengan identitas laporan, siswa harus memilih "sertakan" atau "jangan sertakan" sebelum mengunduh.
+- **Menu HP**: saat tertutup tidak bisa dijangkau Tab; saat terbuka fokus pindah ke menu, bagian lain halaman tidak bisa difokus, Esc dan tombol tutup mengembalikan fokus ke tombol menu.
+- **Lab PLC**: tombol mode memakai kata kerja ("Beralih ke PROGRAM/RUN") dan mode saat ini ditampilkan terpisah. Ada penanda bila program di editor belum diunduh ke simulator, dan hasil program check menyebut versi yang diperiksa.
+- **Gambar**: tombol "Perbesar gambar" membuka penampil dengan zoom 100-400% dan geser; Esc/Tutup mengembalikan fokus.
+- **Navigasi pertemuan**: bilah "Lompat ke P…" yang menempel di setiap modul (pertemuan yang sedang dibaca ditandai), plus tautan pertemuan sebelum/sesudah di akhir setiap pertemuan.
+- **Perbaikan lain**: tombol "Tambah baris" di LKPD tidak lagi memasang pendengar ganda.
+- Uji regresi: 9 program contoh tetap lulus pemeriksa misi bawaan (DOL, SET/RSET, toggle, kanan-kiri, bintang-segitiga, konveyor, sekuens pneumatik, press dua tangan, sortir). Ini pemeriksaan bawaan simulator, bukan bukti kesamaan penuh dengan PLC Omron sungguhan. Skenario baru yang diuji di browser: lulus lalu gagal, edit setelah uji, gerbang syarat esensial (contoh K3 = 1, lainnya 4 → nilai 94 tetap "menunggu validasi"), penyimpanan gagal lalu dicoba ulang, cadangan darurat, pemulihan (termasuk file rusak, aplikasi lain, versi lebih baru, kunci asing, tipe salah, terlalu besar, batal, dan gagal di tengah), kelengkapan laporan, fokus menu tertutup/terbuka, penampil gambar. Belum diuji di HP Android/iOS fisik dan pembaca layar.
+
 ## Perilaku simulator (ringkas)
 
 - Satu scan = 10 ms: input dibaca, rung dieksekusi atas-ke-bawah, output diperbarui. Koil ganda, nomor timer ganda, dan OUT ke area input diberi peringatan saat program check.
@@ -62,7 +76,7 @@ Periksa kembali sebelum dipakai untuk penilaian.
 - Matikan-hidupkan daya: W, output, dan timer hilang; H, D, dan PV counter bertahan; P_First_Cycle ON satu scan.
 - Kontaktor punya waktu tarik ±15 ms dan lepas ±40 ms. Tanpa interlock hardware, pembalikan langsung atau kontak K1 lengket menimbulkan "hubung singkat" di panel motor.
 - E-stop di stasiun pneumatik, press, sortir, dan HMI memutus daya aktuator (hard-wired) sekaligus memberi status ke input PLC.
-- Semua data siswa tersimpan di `localStorage` browser masing-masing (awalan `ski:`), tidak dikirim ke mana pun.
+- Semua data siswa tersimpan di `localStorage` browser masing-masing (awalan `ski:`), tidak dikirim ke mana pun. Cadangan .json bisa dipindah antarbrowser.
 
 ## Mengubah isi
 
